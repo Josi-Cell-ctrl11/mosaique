@@ -121,7 +121,9 @@ export async function POST(req: NextRequest) {
 
     if (!fedapayRes.ok) {
       console.error('Erreur FedaPay:', fedapayData);
-      return NextResponse.json({ error: 'Erreur paiement FedaPay' }, { status: 502 });
+      return NextResponse.json({ 
+        error: `Erreur FedaPay: ${fedapayData.message ?? JSON.stringify(fedapayData)}` 
+      }, { status: 502 });
     }
 
     // Sauvegarder l'ID FedaPay
