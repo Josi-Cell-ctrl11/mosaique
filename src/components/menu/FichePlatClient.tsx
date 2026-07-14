@@ -65,7 +65,7 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-mosaique-ivoire">
+    <div className="min-h-screen bg-mosaique-ivoire pb-24 lg:pb-0">
       {/* Retour */}
       <div className="container-site pt-6 pb-2">
         <Link
@@ -290,6 +290,37 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
           </section>
         )}
       </div>
+    </div>
+
+    {/* CTA fixe mobile — prix + bouton toujours visibles */}
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-mosaique-creme px-4 py-3 flex items-center gap-3">
+      {/* Quantité */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={() => setQuantite((q) => Math.max(1, q - 1))}
+          aria-label="Diminuer"
+          className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-mosaique-creme text-mosaique-nuit active:bg-mosaique-creme"
+        >
+          <Minus size={16} />
+        </button>
+        <span className="w-6 text-center font-semibold tabular-nums">{quantite}</span>
+        <button
+          onClick={() => setQuantite((q) => q + 1)}
+          aria-label="Augmenter"
+          className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-mosaique-creme text-mosaique-nuit active:bg-mosaique-creme"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+
+      {/* Bouton + prix */}
+      <button
+        onClick={ajouterAuPanier}
+        className="btn-primary flex-1 flex items-center justify-between"
+      >
+        <span>Ajouter au panier</span>
+        <span className="tabular-nums font-bold">{formatPrix(prixTotal)}</span>
+      </button>
     </div>
   );
 }
