@@ -323,5 +323,6 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
         <span className="tabular-nums font-bold">{formatPrix(prixTotal)}</span>
       </button>
     </div>
-  </>;
+  </>
+  );
 }
