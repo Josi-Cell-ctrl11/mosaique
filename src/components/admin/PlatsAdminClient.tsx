@@ -107,7 +107,7 @@ export function PlatsAdminClient({ plats: initial, categories }: Props) {
     if (platEnEdition) {
       const { error } = await supabase.from('plats').update(data).eq('id', platEnEdition.id);
       if (error) { toast.error('Erreur sauvegarde.'); setSauvegarde(false); return; }
-      setPlats((p) => p.map((pl) => pl.id === platEnEdition.id ? { ...pl, ...data } : pl));
+      setPlats((p) => p.map((pl) => pl.id === platEnEdition.id ? { ...pl, ...data, image_url: data.image_url ?? undefined } : pl));
       toast.success('Plat mis à jour.');
     } else {
       const { data: nouveau, error } = await supabase.from('plats').insert(data).select().single();
