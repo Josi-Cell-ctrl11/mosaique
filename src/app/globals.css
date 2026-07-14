@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ocre:   #C8792A;
+    --color-terre:  #7A3B1E;
+    --color-ivoire: #FAF6EF;
+    --color-creme:  #F0E8D8;
+    --color-nuit:   #1C1410;
+    --color-gris:   #9E9084;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-mosaique-ivoire text-mosaique-nuit font-body antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-mosaique-ocre;
+  }
+
+  input, textarea, select {
+    @apply font-body;
+  }
+
+  .prix {
+    font-variant-numeric: tabular-nums;
+    @apply font-bold text-mosaique-ocre;
+  }
+
+  * {
+    @apply scroll-mt-20;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-mosaique-ocre text-white font-semibold
+           px-6 py-3 rounded-btn
+           min-h-[48px] min-w-[48px]
+           transition-all duration-200 ease-out
+           hover:bg-mosaique-terre active:scale-95
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mosaique-terre
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent text-mosaique-ocre font-semibold
+           px-6 py-3 rounded-btn border-2 border-mosaique-ocre
+           min-h-[48px] min-w-[48px]
+           transition-all duration-200 ease-out
+           hover:bg-mosaique-creme active:scale-95
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mosaique-ocre
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent text-mosaique-nuit font-medium
+           px-4 py-2 rounded-btn
+           min-h-[44px]
+           transition-all duration-150
+           hover:bg-mosaique-creme active:scale-95;
+  }
+
+  .carte-plat {
+    @apply bg-white rounded-card shadow-card
+           transition-shadow duration-200 ease-out
+           hover:shadow-card-hover
+           overflow-hidden;
+  }
+
+  .input-field {
+    @apply w-full bg-white border border-mosaique-creme rounded-btn
+           px-4 py-3 text-mosaique-nuit placeholder-mosaique-gris
+           min-h-[48px]
+           transition-colors duration-150
+           focus:outline-none focus:border-mosaique-ocre focus:ring-1 focus:ring-mosaique-ocre
+           disabled:bg-mosaique-creme disabled:cursor-not-allowed;
+  }
+
+  .label-field {
+    @apply block text-sm font-medium text-mosaique-nuit mb-1.5;
+  }
+
+  .badge-vegetarien {
+    @apply inline-flex items-center gap-1 bg-mosaique-vert/10 text-mosaique-vert
+           text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+
+  .badge-epice {
+    @apply inline-flex items-center gap-1 bg-mosaique-epice/10 text-mosaique-epice
+           text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+
+  .container-site {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@keyframes glisser-bas {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glisser-droite {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animer-glisser-bas {
+  animation: glisser-bas 200ms ease-out forwards;
+}
+
+.animer-glisser-droite {
+  animation: glisser-droite 300ms ease-out forwards;
+}
