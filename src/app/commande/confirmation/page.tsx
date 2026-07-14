@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = { title: 'Commande confirmée' };
 
 interface Props {
-  searchParams: { commande?: string };
+  searchParams: { commande?: string; status?: string; id?: string };
 }
 
 export default async function PageConfirmation({ searchParams }: Props) {
@@ -17,6 +17,20 @@ export default async function PageConfirmation({ searchParams }: Props) {
   if (!user) redirect('/connexion');
 
   const commandeId = searchParams.commande;
+  const fedapayStatus = searchParams.status; // 'approved' | 'declined' | 'canceled'
+  const fedapayTxId = searchParams.id;
+
+  // Si FedaPay retourne approved, mettre à jour le statut directement
+  if (commandeId && fedapayStatus === 'approved' && fedapayTxId) {
+    const { createAdminClient } = await import('@/lib/supabase/server');
+    const supabaseAdmin = createAdminClient();
+    await supabaseAdmin
+      .from('commandes')
+      .update({ statut_paiement: 'paye', statut: 'en_preparation' })
+      .eq('id', commandeId)
+      .eq('utilisateur_id', user.id);
+  }
+
   let commande = null;
 
   if (commandeId) {

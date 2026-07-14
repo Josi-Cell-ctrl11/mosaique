@@ -116,7 +116,6 @@ export async function POST(req: NextRequest) {
       callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/commande/confirmation?commande=${commande.id}`,
       customer: { email: user.email },
     };
-
     const txData = await fedapayFetch('/transactions', {
       method: 'POST',
       body: JSON.stringify(txPayload),
