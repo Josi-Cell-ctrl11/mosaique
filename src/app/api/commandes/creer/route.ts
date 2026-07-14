@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   // Créer la transaction FedaPay
   try {
     const fedapayRes = await fetch(
-      `https://api${process.env.FEDAPAY_ENVIRONMENT === 'sandbox' ? '-sandbox' : ''}.fedapay.com/v1/transactions`,
+      `https://api.fedapay.com/v1/transactions`,
       {
         method: 'POST',
         headers: {
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
 
     // Générer le lien de paiement
     const tokenRes = await fetch(
-      `https://api${process.env.FEDAPAY_ENVIRONMENT === 'sandbox' ? '-sandbox' : ''}.fedapay.com/v1/transactions/${fedapayData.v1.transaction.id}/token`,
+      `https://api.fedapay.com/v1/transactions/${fedapayData.v1.transaction.id}/token`,
       {
         method: 'GET',
         headers: {
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     );
 
     const tokenData = await tokenRes.json();
-    const fedapayUrl = `https://checkout${process.env.FEDAPAY_ENVIRONMENT === 'sandbox' ? '-sandbox' : ''}.fedapay.com/?token=${tokenData.token}`;
+    const fedapayUrl = `https://checkout.fedapay.com/?token=${tokenData.token}`;
 
     // Notifier l'admin
     await envoyerNotification({
