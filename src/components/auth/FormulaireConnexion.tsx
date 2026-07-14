@@ -86,7 +86,15 @@ export function FormulaireConnexion() {
 
         {/* Mot de passe */}
         <div>
-          <label className="label-field" htmlFor="password">Mot de passe</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="label-field !mb-0" htmlFor="password">Mot de passe</label>
+            <Link
+              href="/mot-de-passe-oublie"
+              className="text-xs text-mosaique-ocre hover:underline"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <div className="relative">
             <input
               id="password"
