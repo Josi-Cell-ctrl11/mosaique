@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
 import { envoyerNotification } from '@/lib/notifications';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const FedaPay = require('fedapay');
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
   const sousTotal = body.articles.reduce((t, a) => t + a.prix * a.quantite, 0);
   const total = sousTotal + (body.frais_livraison ?? 0);
 
-  // Créer la commande
+  // Créer la commande en DB
   const { data: commande, error: erreurCommande } = await supabaseAdmin
     .from('commandes')
     .insert({
@@ -86,53 +88,26 @@ export async function POST(req: NextRequest) {
 
   if (erreurLignes) {
     console.error('Erreur lignes commande:', erreurLignes);
-    // Annuler la commande
     await supabaseAdmin.from('commandes').delete().eq('id', commande.id);
     return NextResponse.json({ error: 'Erreur lors de la création des lignes' }, { status: 500 });
   }
 
-  // Créer la transaction FedaPay
+  // Créer la transaction FedaPay via SDK officiel
   try {
-    const fedapayRes = await fetch(
-      `https://api.fedapay.com/v1/transactions`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.FEDAPAY_SECRET_KEY}`,
-        },
-        body: JSON.stringify({
-          description: `Commande Mosaïque ${commande.numero}`,
-          amount: total,
-          currency: { iso: 'XOF' },
-          callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/fedapay/webhook`,
-          customer: {
-            email: user.email,
-          },
-          metadata: {
-            commande_id: commande.id,
-            commande_numero: commande.numero,
-          },
-        }),
-      }
-    );
+    FedaPay.setApiKey(process.env.FEDAPAY_SECRET_KEY);
+    FedaPay.setEnvironment(process.env.FEDAPAY_ENVIRONMENT ?? 'sandbox');
 
-    const fedapayData = await fedapayRes.json();
-    console.log('FedaPay response:', JSON.stringify(fedapayData));
+    const transaction = await FedaPay.Transaction.create({
+      description: `Commande Mosaïque ${commande.numero}`,
+      amount: total,
+      currency: { iso: 'XOF' },
+      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/commande/confirmation?commande=${commande.id}`,
+      customer: {
+        email: user.email,
+      },
+    });
 
-    if (!fedapayRes.ok) {
-      console.error('Erreur FedaPay:', fedapayData);
-      return NextResponse.json({ 
-        error: `Erreur FedaPay: ${fedapayData.message ?? JSON.stringify(fedapayData)}` 
-      }, { status: 502 });
-    }
-
-    // La doc retourne { transaction: { id, reference, ... } }
-    const transaction = fedapayData.transaction ?? fedapayData.v1?.transaction;
-    if (!transaction) {
-      console.error('Structure FedaPay inattendue:', fedapayData);
-      return NextResponse.json({ error: 'Réponse FedaPay invalide' }, { status: 502 });
-    }
+    console.log('FedaPay transaction créée:', transaction.id, transaction.reference);
 
     // Sauvegarder l'ID FedaPay
     await supabaseAdmin
@@ -143,8 +118,11 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', commande.id);
 
-    // URL de paiement selon la doc : /v1/transactions/pay?id=xxx
-    const fedapayUrl = `https://api.fedapay.com/v1/transactions/pay?id=${transaction.id}&apikey=${process.env.NEXT_PUBLIC_FEDAPAY_PUBLIC_KEY}`;
+    // Générer le token de paiement
+    const token = await transaction.generateToken();
+    const fedapayUrl = token.url;
+
+    console.log('FedaPay URL:', fedapayUrl);
 
     // Notifier l'admin
     await envoyerNotification({
@@ -162,6 +140,8 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error('Erreur FedaPay:', err);
-    return NextResponse.json({ error: 'Erreur lors de l\'initialisation du paiement' }, { status: 500 });
+    return NextResponse.json({
+      error: `Erreur paiement: ${err instanceof Error ? err.message : JSON.stringify(err)}`,
+    }, { status: 500 });
   }
 }
