@@ -40,6 +40,7 @@ export function CheckoutClient({ profile, configLivraison }: CheckoutClientProps
     register,
     handleSubmit,
     watch,
+    trigger,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -215,7 +216,10 @@ export function CheckoutClient({ profile, configLivraison }: CheckoutClientProps
 
                 <button
                   type="button"
-                  onClick={() => setEtape('recapitulatif')}
+                  onClick={async () => {
+                    const valid = await trigger(['adresse', 'ville', 'telephone']);
+                    if (valid) setEtape('recapitulatif');
+                  }}
                   className="btn-primary w-full"
                 >
                   Continuer vers le paiement
