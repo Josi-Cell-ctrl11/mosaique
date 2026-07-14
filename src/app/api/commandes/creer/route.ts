@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
     );
 
     const fedapayData = await fedapayRes.json();
+    console.log('FedaPay response:', JSON.stringify(fedapayData));
 
     if (!fedapayRes.ok) {
       console.error('Erreur FedaPay:', fedapayData);
@@ -126,28 +127,24 @@ export async function POST(req: NextRequest) {
       }, { status: 502 });
     }
 
+    // La doc retourne { transaction: { id, reference, ... } }
+    const transaction = fedapayData.transaction ?? fedapayData.v1?.transaction;
+    if (!transaction) {
+      console.error('Structure FedaPay inattendue:', fedapayData);
+      return NextResponse.json({ error: 'Réponse FedaPay invalide' }, { status: 502 });
+    }
+
     // Sauvegarder l'ID FedaPay
     await supabaseAdmin
       .from('commandes')
       .update({
-        fedapay_transaction_id: String(fedapayData.v1.transaction.id),
-        fedapay_reference: fedapayData.v1.transaction.reference,
+        fedapay_transaction_id: String(transaction.id),
+        fedapay_reference: transaction.reference,
       })
       .eq('id', commande.id);
 
-    // Générer le lien de paiement
-    const tokenRes = await fetch(
-      `https://api.fedapay.com/v1/transactions/${fedapayData.v1.transaction.id}/token`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${process.env.FEDAPAY_SECRET_KEY}`,
-        },
-      }
-    );
-
-    const tokenData = await tokenRes.json();
-    const fedapayUrl = `https://checkout.fedapay.com/?token=${tokenData.token}`;
+    // URL de paiement selon la doc : /v1/transactions/pay?id=xxx
+    const fedapayUrl = `https://api.fedapay.com/v1/transactions/pay?id=${transaction.id}&apikey=${process.env.NEXT_PUBLIC_FEDAPAY_PUBLIC_KEY}`;
 
     // Notifier l'admin
     await envoyerNotification({
