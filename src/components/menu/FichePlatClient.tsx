@@ -65,6 +65,7 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-mosaique-ivoire pb-24 lg:pb-0">
       {/* Retour */}
       <div className="container-site pt-6 pb-2">
@@ -322,5 +323,5 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
         <span className="tabular-nums font-bold">{formatPrix(prixTotal)}</span>
       </button>
     </div>
-  );
+  </>;
 }
