@@ -4,6 +4,7 @@ import { formatPrix, formatDate } from '@/lib/utils';
 import { STATUT_LABELS } from '@/types';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { ActionsCommandeEnAttente } from '@/components/compte/ActionsCommandeEnAttente';
 
 export const metadata: Metadata = { title: 'Détail de commande' };
 
@@ -127,6 +128,14 @@ export default async function PageDetailCommande({ params }: Props) {
               <h2 className="font-semibold text-mosaique-nuit mb-2">Instructions</h2>
               <p className="text-sm text-mosaique-gris">{commande.notes}</p>
             </div>
+          )}
+
+          {/* Actions si en attente de paiement */}
+          {commande.statut === 'en_attente_paiement' && (
+            <ActionsCommandeEnAttente
+              commandeId={commande.id}
+              fedapayTransactionId={commande.fedapay_transaction_id}
+            />
           )}
         </div>
       </div>

@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { formatPrix, formatDate } from '@/lib/utils';
-import { STATUT_LABELS, STATUT_PAIEMENT_LABELS } from '@/types';
+import { STATUT_LABELS } from '@/types';
 import type { Metadata } from 'next';
 import type { Commande } from '@/types';
+import { ActionsCommandeEnAttente } from '@/components/compte/ActionsCommandeEnAttente';
 
 export const metadata: Metadata = { title: 'Mes commandes' };
 
@@ -62,7 +63,7 @@ export default async function PageCommandes() {
                   </div>
                 )}
 
-                <div className="mt-3 flex gap-3">
+                <div className="mt-3 flex gap-3 flex-wrap items-center">
                   <Link
                     href={`/compte/commandes/${commande.id}`}
                     className="text-sm text-mosaique-ocre font-medium hover:underline"
@@ -70,6 +71,14 @@ export default async function PageCommandes() {
                     Voir le détail →
                   </Link>
                 </div>
+
+                {/* Actions si en attente de paiement */}
+                {commande.statut === 'en_attente_paiement' && (
+                  <ActionsCommandeEnAttente
+                    commandeId={commande.id}
+                    fedapayTransactionId={commande.fedapay_transaction_id}
+                  />
+                )}
               </div>
             </li>
           ))}
