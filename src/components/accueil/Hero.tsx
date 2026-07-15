@@ -2,20 +2,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Plat } from '@/types';
 
-// Images hero — nourriture grillée HD, ambiance braise chaude
-// Remplacer par la vraie photo du plat phare via l'admin
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1544025162-d76694265947?w=1920&q=90', // brochettes grillées sur braise
-  'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&q=90', // viande grillée fumée
-  'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1920&q=90', // steak/viande grillée HD
-];
+// Image hero fixe — brochettes grillées sur braise, HD
+// Indépendante du plat vedette pour garder le contrôle visuel de l'accueil
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1920&q=90';
 
 interface HeroProps {
   platVedette?: Plat | null;
 }
 
 export function Hero({ platVedette }: HeroProps) {
-  const imageHero = platVedette?.image_url ?? HERO_IMAGES[0];
 
   return (
     <section
@@ -24,8 +19,8 @@ export function Hero({ platVedette }: HeroProps) {
     >
       {/* Photo pleine largeur — pas d'overlay sombre générique */}
       <Image
-        src={imageHero}
-        alt={platVedette ? `${platVedette.nom} — le plat du moment chez Mosaïque` : 'Un plat Mosaïque'}
+        src={HERO_IMAGE}
+        alt="Brochettes grillées sur braise — Le Mosaïque"
         fill
         priority
         className="object-cover object-center"
