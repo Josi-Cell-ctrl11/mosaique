@@ -2,17 +2,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Plat } from '@/types';
 
-// Image hero : plat chaud, lumière naturelle rasante, couleurs franches
+// Images hero — nourriture grillée HD, ambiance braise chaude
 // Remplacer par la vraie photo du plat phare via l'admin
-const HERO_IMAGE_FALLBACK =
-  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=85';
+const HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1544025162-d76694265947?w=1920&q=90', // brochettes grillées sur braise
+  'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&q=90', // viande grillée fumée
+  'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1920&q=90', // steak/viande grillée HD
+];
 
 interface HeroProps {
   platVedette?: Plat | null;
 }
 
 export function Hero({ platVedette }: HeroProps) {
-  const imageHero = platVedette?.image_url ?? HERO_IMAGE_FALLBACK;
+  const imageHero = platVedette?.image_url ?? HERO_IMAGES[0];
 
   return (
     <section
