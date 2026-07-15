@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import { BoutonGoogle } from './BoutonGoogle';
 
 const schema = z.object({
   nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
@@ -78,6 +79,15 @@ export function FormulaireInscription() {
       <p className="text-mosaique-gris text-sm mb-6">
         Un compte est nécessaire pour passer commande.
       </p>
+
+      {/* Google */}
+      <BoutonGoogle label="S'inscrire avec Google" />
+
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px bg-mosaique-creme" />
+        <span className="text-xs text-mosaique-gris">ou</span>
+        <div className="flex-1 h-px bg-mosaique-creme" />
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {/* Nom */}
