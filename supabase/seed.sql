@@ -172,3 +172,19 @@ insert into public.plats (categorie_id, nom, slug, description, ingredients, pri
 ('a0000013-0000-0000-0000-000000000013', 'Michoui de mouton et sauce triple de mouton', 'michoui-mouton-sauce-triple', 'Michoui de mouton accompagné de sauce triple de mouton.', 'Mouton, sauce triple de mouton', 110000, true, false, false, false, 5, '/assets/menu/michoui-mouton.jpeg'),
 ('a0000013-0000-0000-0000-000000000013', 'Michoui de mouton, sauce gbôta et triple de mouton', 'michoui-mouton-gbota-triple', 'Michoui de mouton accompagné de sauce gbôta et de sauce triple de mouton.', 'Mouton, sauce gbôta, sauce triple de mouton', 160000, true, false, false, false, 6, '/assets/menu/michoui-mouton.jpeg'),
 ('a0000013-0000-0000-0000-000000000013', 'Sauce triple de mouton', 'sauce-triple-de-mouton', 'Sauce triple de mouton, proposée séparément.', 'Sauce triple de mouton', 30000, true, false, false, false, 7, '/assets/menu/michoui-mouton.jpeg');
+
+
+-- ============================================================
+-- SAUCE CRIN-CRIN
+-- ============================================================
+insert into public.categories (id, nom, slug, ordre) values
+  ('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin', 'sauce-crin-crin', 14);
+
+insert into public.plats (categorie_id, nom, slug, description, ingredients, prix, disponible, est_vegetarien, est_epice, est_vedette, ordre, image_url) values
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin enrichie — viande de mouton', 'crin-crin-mouton', 'Sauce crin-crin enrichie au mouton, crabe, couenne de bœuf et fromage.', 'Viande de mouton, crabe, couenne de bœuf, fromage', 4500, true, false, false, false, 1, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin enrichie — viande de bœuf', 'crin-crin-boeuf', 'Sauce crin-crin enrichie au bœuf, crabe, couenne de bœuf et fromage.', 'Viande de bœuf, crabe, couenne de bœuf, fromage', 6000, true, false, false, false, 2, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin enrichie — viande de poulet', 'crin-crin-poulet', 'Sauce crin-crin enrichie au poulet, crabe, couenne de bœuf et fromage.', 'Viande de poulet, crabe, couenne de bœuf, fromage', 4500, true, false, false, false, 3, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin enrichie — poisson fumé', 'crin-crin-poisson-fume', 'Sauce crin-crin enrichie au poisson fumé, crabe, couenne de bœuf et fromage.', 'Poisson fumé, crabe, couenne de bœuf, fromage', 3500, true, false, false, false, 4, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin double viande', 'crin-crin-double-viande', 'Sauce crin-crin double viande avec crabe, couenne de bœuf, fromage, huile rouge et feuilles de grand morel.', 'Viande de mouton, viande de bœuf, crabe, couenne de bœuf, fromage, huile rouge, feuilles de grand morel', 8000, true, false, false, false, 5, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin enrichie — tripes de mouton', 'crin-crin-tripes-mouton', 'Sauce crin-crin enrichie aux tripes de mouton.', 'Tripes de mouton', 5000, true, false, false, false, 6, '/assets/menu/sauce-crin-crin.jpeg'),
+('a0000014-0000-0000-0000-000000000014', 'Sauce crin-crin — tripes de bœuf', 'crin-crin-tripes-boeuf', 'Sauce crin-crin aux tripes de bœuf.', 'Tripes de bœuf', 4500, true, false, false, false, 7, '/assets/menu/sauce-crin-crin.jpeg');

@@ -18,6 +18,7 @@ export const CATEGORIES_DEMO: Categorie[] = [
   { id: 'cat-11', nom: 'Sauces gombo',      slug: 'sauces-gombo',      ordre: 11, created_at: '' },
   { id: 'cat-12', nom: 'Sauce arachide',    slug: 'sauce-arachide',    ordre: 12, created_at: '' },
   { id: 'cat-13', nom: 'Michoui mouton',    slug: 'michoui-mouton',    ordre: 13, created_at: '' },
+  { id: 'cat-14', nom: 'Sauce crin-crin',   slug: 'sauce-crin-crin',   ordre: 14, created_at: '' },
 ];
 
 const d = new Date().toISOString();
@@ -465,4 +466,13 @@ export const PLATS_DEMO: Plat[] = [
   { id: 'd-m05', categorie_id: 'cat-13', nom: 'Michoui de mouton et sauce triple de mouton', slug: 'michoui-mouton-sauce-triple', description: 'Michoui de mouton accompagné de sauce triple de mouton.', prix: 110000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 5, images_urls: [], created_at: d, updated_at: d },
   { id: 'd-m06', categorie_id: 'cat-13', nom: 'Michoui de mouton, sauce gbôta et triple de mouton', slug: 'michoui-mouton-gbota-triple', description: 'Michoui de mouton accompagné de sauce gbôta et de sauce triple de mouton.', prix: 160000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 6, images_urls: [], created_at: d, updated_at: d },
   { id: 'd-m07', categorie_id: 'cat-13', nom: 'Sauce triple de mouton', slug: 'sauce-triple-de-mouton', description: 'Sauce triple de mouton, proposée séparément.', prix: 30000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 7, images_urls: [], created_at: d, updated_at: d },
+
+  // ── SAUCE CRIN-CRIN ─────────────────────────────────────────
+  { id: 'd-k01', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — viande de mouton', slug: 'crin-crin-mouton', description: 'Sauce crin-crin enrichie au mouton, crabe, couenne de bœuf et fromage.', prix: 4500, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 1, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k02', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — viande de bœuf', slug: 'crin-crin-boeuf', description: 'Sauce crin-crin enrichie au bœuf, crabe, couenne de bœuf et fromage.', prix: 6000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 2, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k03', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — viande de poulet', slug: 'crin-crin-poulet', description: 'Sauce crin-crin enrichie au poulet, crabe, couenne de bœuf et fromage.', prix: 4500, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 3, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k04', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — poisson fumé', slug: 'crin-crin-poisson-fume', description: 'Sauce crin-crin enrichie au poisson fumé, crabe, couenne de bœuf et fromage.', prix: 3500, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 4, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k05', categorie_id: 'cat-14', nom: 'Sauce crin-crin double viande', slug: 'crin-crin-double-viande', description: 'Sauce crin-crin double viande avec crabe, couenne de bœuf, fromage, huile rouge et feuilles de grand morel.', prix: 8000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 5, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k06', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — tripes de mouton', slug: 'crin-crin-tripes-mouton', description: 'Sauce crin-crin enrichie aux tripes de mouton.', prix: 5000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 6, images_urls: [], created_at: d, updated_at: d },
+  { id: 'd-k07', categorie_id: 'cat-14', nom: 'Sauce crin-crin — tripes de bœuf', slug: 'crin-crin-tripes-boeuf', description: 'Sauce crin-crin aux tripes de bœuf.', prix: 4500, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 7, images_urls: [], created_at: d, updated_at: d },
 ];
