@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, UtensilsCrossed } from 'lucide-react';
+import { Flame, Leaf, Plus, UtensilsCrossed } from 'lucide-react';
 import type { Plat } from '@/types';
 import { formatPrix } from '@/lib/utils';
 import { usePanier } from '@/store/panier';
@@ -31,40 +31,40 @@ export function CartePlat({ plat }: CartePlatProps) {
   return (
     <article className="carte-plat group">
       <Link href={`/menu/${plat.slug}`} className="block">
-        {/* Zone image — photo si dispo, placeholder élégant sinon */}
-        <div className="relative aspect-[4/3] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden bg-mosaique-nuit">
           {plat.image_url ? (
             <>
               <Image
                 src={plat.image_url}
                 alt={plat.nom}
                 fill
-                className="object-cover transition-transform duration-300 ease-mosaique group-hover:scale-105"
+                className="object-contain transition-transform duration-300 ease-mosaique group-hover:scale-[1.03]"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" aria-hidden="true" />
             </>
           ) : (
-            /* Placeholder noir/or — identité Mosaïque sans photo */
-            <div className="w-full h-full bg-mosaique-nuit flex flex-col items-center justify-center gap-2 group-hover:bg-mosaique-terre transition-colors">
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 group-hover:bg-mosaique-terre transition-colors">
               <UtensilsCrossed size={28} className="text-mosaique-or/60" aria-hidden="true" />
               <span className="text-xs text-mosaique-or/40 font-medium tracking-widest uppercase">Mosaïque</span>
             </div>
           )}
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex gap-1.5">
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             {plat.est_vegetarien && (
-              <span className="badge-vegetarien">🌿 Végétarien</span>
+              <span className="badge-vegetarien" title="Plat végétarien">
+                <Leaf size={12} strokeWidth={2.2} aria-hidden="true" /> Végétarien
+              </span>
             )}
             {plat.est_epice && (
-              <span className="badge-epice">🌶 Épicé</span>
+              <span className="badge-epice" title="Plat épicé">
+                <Flame size={12} strokeWidth={2.2} aria-hidden="true" /> Épicé
+              </span>
             )}
           </div>
         </div>
       </Link>
 
-      {/* Infos */}
       <div className="p-4">
         <Link href={`/menu/${plat.slug}`} className="block">
           <h3 className="font-semibold text-mosaique-nuit text-base leading-snug mb-1 hover:text-mosaique-ocre transition-colors">
@@ -75,7 +75,6 @@ export function CartePlat({ plat }: CartePlatProps) {
           </p>
         </Link>
 
-        {/* Prix + bouton — toujours ensemble, jamais séparés */}
         <div className="flex items-center justify-between mt-4">
           <span className="prix text-prix">{formatPrix(plat.prix)}</span>
           <button
