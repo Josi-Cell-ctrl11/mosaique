@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, User } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { usePanier } from '@/store/panier';
@@ -15,18 +15,29 @@ export function Navigation() {
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [utilisateur, setUtilisateur] = useState<{ id: string; email: string } | null>(null);
+  const [estAdmin, setEstAdmin] = useState(false);
 
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUtilisateur(data.user ? { id: data.user.id, email: data.user.email! } : null);
-    });
+    function synchroniserSession(user: { id: string; email?: string } | null) {
+      if (!user) {
+        setUtilisateur(null);
+        setEstAdmin(false);
+        return;
+      }
+      setUtilisateur({ id: user.id, email: user.email ?? '' });
+      // L’appel base est différé hors du callback auth pour ne pas bloquer Supabase Auth.
+      setTimeout(() => {
+        supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
+          .then(({ data: profile }) => setEstAdmin(Boolean(profile?.is_admin)));
+      }, 0);
+    }
 
+    supabase.auth.getUser().then(({ data }) => synchroniserSession(data.user));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUtilisateur(session?.user ? { id: session.user.id, email: session.user.email! } : null);
+      synchroniserSession(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -93,6 +104,19 @@ export function Navigation() {
         <div className="flex items-center gap-2">
           {/* Compte */}
           {utilisateur ? (
+            <>
+            {estAdmin && <Link
+              href="/admin"
+              className={cn(
+                'hidden lg:flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-btn transition-colors',
+                scrolled || !isAccueil
+                  ? 'text-mosaique-ocre hover:bg-mosaique-creme'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
+              )}
+            >
+              <ShieldCheck size={16} />
+              Admin
+            </Link>}
             <Link
               href="/compte"
               className={cn(
@@ -105,6 +129,7 @@ export function Navigation() {
               <User size={16} />
               Mon compte
             </Link>
+            </>
           ) : (
             <Link
               href="/connexion"
@@ -164,6 +189,7 @@ export function Navigation() {
               utilisateur
                 ? { href: '/compte', label: 'Mon compte' }
                 : { href: '/connexion', label: 'Se connecter' },
+              ...(estAdmin ? [{ href: '/admin', label: 'Administration' }] : []),
               ...(!utilisateur ? [{ href: '/inscription', label: "S'inscrire" }] : []),
             ].map((lien) => (
               <li key={lien.href}>

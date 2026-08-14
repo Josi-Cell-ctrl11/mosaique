@@ -49,7 +49,12 @@ export function FormulaireConnexion() {
         return;
       }
 
-      router.push(redirect);
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = user
+        ? await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
+        : { data: null };
+      const destination = searchParams.get('redirect') ?? (profile?.is_admin ? '/admin' : '/menu');
+      router.push(destination);
       router.refresh();
     } finally {
       setChargement(false);
