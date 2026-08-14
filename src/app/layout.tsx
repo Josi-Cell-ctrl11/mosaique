@@ -49,12 +49,19 @@ export default function RootLayout({
         <Panier />
         <Toaster
           position="bottom-right"
+          duration={2200}
+          visibleToasts={2}
+          expand={false}
           toastOptions={{
             style: {
               background: '#FAF6EF',
               border: '1px solid #F0E8D8',
               color: '#1C1410',
               fontFamily: 'Inter, system-ui, sans-serif',
+              fontSize: '0.875rem',
+              padding: '0.65rem 0.85rem',
+              borderRadius: '0.75rem',
+              boxShadow: '0 8px 24px rgba(28, 20, 16, 0.12)',
             },
           }}
         />

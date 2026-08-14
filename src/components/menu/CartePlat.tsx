@@ -25,7 +25,10 @@ export function CartePlat({ plat }: CartePlatProps) {
       quantite: 1,
       prixOptions: 0,
     });
-    toast.success(`${plat.nom} ajouté au panier`);
+    toast.success('Ajouté au panier', {
+      duration: 1200,
+      style: { pointerEvents: 'none' },
+    });
   }
 
   return (

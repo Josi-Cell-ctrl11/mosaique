@@ -61,7 +61,10 @@ export function FichePlatClient({ plat, suggestion }: FichePlatClientProps) {
       options: Object.keys(optionsChoisies).length > 0 ? optionsChoisies : undefined,
       prixOptions,
     });
-    toast.success(`${quantite}× ${plat.nom} ajouté${quantite > 1 ? 's' : ''} au panier`);
+    toast.success('Ajouté au panier', {
+      duration: 1200,
+      style: { pointerEvents: 'none' },
+    });
   }
 
   return (
