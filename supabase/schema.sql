@@ -51,8 +51,7 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer;
-
+$$ language plpgsql security definer set search_path = public;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -337,8 +336,7 @@ begin
   new.numero := 'MOS-' || to_char(now(), 'YYYYMMDD') || '-' || lpad(seq::text, 4, '0');
   return new;
 end;
-$$ language plpgsql security definer;
-
+$$ language plpgsql security definer set search_path = public;
 create trigger set_numero_commande
   before insert on public.commandes
   for each row execute function public.generer_numero_commande();

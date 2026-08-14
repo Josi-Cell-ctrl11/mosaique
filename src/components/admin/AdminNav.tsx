@@ -2,15 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, UtensilsCrossed, ShoppingBag, CreditCard, Settings } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, CreditCard, Settings, Tags, SlidersHorizontal, MessageSquare, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const LIENS = [
   { href: '/admin',          label: 'Tableau de bord', icon: LayoutDashboard, exact: true },
-  { href: '/admin/plats',    label: 'Plats',            icon: UtensilsCrossed },
-  { href: '/admin/commandes',label: 'Commandes',        icon: ShoppingBag },
-  { href: '/admin/paiements',label: 'Paiements',        icon: CreditCard },
-  { href: '/admin/livraison',label: 'Livraison',        icon: Settings },
+  { href: '/admin/plats',      label: 'Plats',        icon: UtensilsCrossed },
+  { href: '/admin/categories', label: 'Catégories',   icon: Tags },
+  { href: '/admin/options',    label: 'Options',      icon: SlidersHorizontal },
+  { href: '/admin/commandes',  label: 'Commandes',    icon: ShoppingBag },
+  { href: '/admin/paiements',  label: 'Paiements',    icon: CreditCard },
+  { href: '/admin/avis',       label: 'Avis',         icon: MessageSquare },
+  { href: '/admin/profils',    label: 'Profils',      icon: Users },
+  { href: '/admin/livraison',  label: 'Livraison',    icon: Settings },
 ];
 
 export function AdminNav() {
