@@ -29,9 +29,9 @@ export function Michoui({ plats, slugCategorie }: { plats: Plat[]; slugCategorie
             </dl>
           )}
           <div className="flex items-center justify-between gap-3 pt-1">
-            <span className="lg:hidden font-extrabold text-mosaique-or-pale">dès {formatPrix(prixMin)}</span>
-            <Link href={`/menu?categorie=${slugCategorie}`} className="inline-flex items-center min-h-[48px] px-5 rounded-btn border-[1.5px] border-mosaique-or text-mosaique-or font-extrabold hover:bg-mosaique-or hover:text-mosaique-nuit transition-colors">
-              Réserver mon michoui
+            <span className="lg:hidden font-extrabold text-mosaique-or-pale whitespace-nowrap">dès {formatPrix(prixMin)}</span>
+            <Link href={`/menu?categorie=${slugCategorie}`} className="inline-flex items-center min-h-[48px] px-5 rounded-btn border-[1.5px] border-mosaique-or text-mosaique-or font-extrabold whitespace-nowrap hover:bg-mosaique-or hover:text-mosaique-nuit transition-colors">
+              Réserver<span className="hidden sm:inline">&nbsp;mon michoui</span>
             </Link>
           </div>
         </div>
