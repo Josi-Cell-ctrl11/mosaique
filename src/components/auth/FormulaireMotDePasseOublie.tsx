@@ -45,7 +45,7 @@ export function FormulaireMotDePasseOublie() {
   }
 
   return (
-    <div className="bg-white rounded-card shadow-card p-8">
+    <div className="carte p-8">
       <Link
         href="/connexion"
         className="inline-flex items-center gap-1.5 text-sm text-mosaique-gris hover:text-mosaique-ocre transition-colors mb-6"

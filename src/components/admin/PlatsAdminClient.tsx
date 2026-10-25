@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { Plat, Categorie } from '@/types';
-import { formatPrix, imagePlaceholder, slugify } from '@/lib/utils';
+import { formatPrix, slugify } from '@/lib/utils';
+import { ImagePlat } from '@/components/ui/ImagePlat';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
@@ -148,7 +149,7 @@ export function PlatsAdminClient({ plats: initial, categories }: Props) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-card shadow-card overflow-hidden">
+      <div className="carte overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-mosaique-ivoire border-b border-mosaique-creme text-xs text-mosaique-gris uppercase">
@@ -164,13 +165,7 @@ export function PlatsAdminClient({ plats: initial, categories }: Props) {
             {plats.map((plat) => (
               <tr key={plat.id} className="hover:bg-mosaique-ivoire/50 transition-colors">
                 <td className="px-4 py-3">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-mosaique-creme">
-                    <Image
-                      src={plat.image_url || imagePlaceholder(plat.nom)}
-                      alt={plat.nom}
-                      fill className="object-cover" sizes="48px"
-                    />
-                  </div>
+                  <ImagePlat src={plat.image_url} alt="" libelle="" sizes="48px" className="w-12 h-12 rounded-[10px]" />
                 </td>
                 <td className="px-4 py-3 font-medium text-mosaique-nuit">{plat.nom}</td>
                 <td className="px-4 py-3 text-mosaique-gris">{plat.categorie?.nom ?? '-'}</td>

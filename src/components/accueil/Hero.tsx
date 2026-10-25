@@ -1,79 +1,57 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import type { Plat } from '@/types';
+import { ArrowRight } from 'lucide-react';
+import { ImagePlat } from '@/components/ui/ImagePlat';
+import { formatPrix } from '@/lib/utils';
 
-// Image hero fixe — brochettes grillées sur braise, HD
-// Indépendante du plat vedette pour garder le contrôle visuel de l'accueil
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1920&q=90';
-
-interface HeroProps {
-  platVedette?: Plat | null;
+interface Props {
+  image: string | null;
+  nomPlat?: string;
+  prixDes?: number;
 }
 
-export function Hero({ platVedette }: HeroProps) {
-
+export function Hero({ image, nomPlat, prixDes }: Props) {
   return (
-    <section
-      className="relative min-h-screen flex items-end overflow-hidden"
-      aria-label="Bienvenue chez Mosaïque"
-    >
-      {/* Photo pleine largeur — pas d'overlay sombre générique */}
-      <Image
-        src={HERO_IMAGE}
-        alt="Brochettes grillées sur braise — Le Mosaïque"
-        fill
-        priority
-        className="object-cover object-center"
-        sizes="100vw"
-      />
-
-      {/* Dégradé naturel bas → haut, chaud, depuis le bas seulement */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(28,20,16,0.85) 0%, rgba(28,20,16,0.4) 40%, transparent 70%)',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Contenu ancré en bas à gauche — pas centré */}
-      <div className="relative container-site pb-16 lg:pb-24 pt-32 w-full">
-        <div className="max-w-2xl">
-          {/* Étiquette */}
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-mosaique-creme/70 mb-4">
-            Livraison à domicile
-          </span>
-
-          {/* Titre — la ligne d'identité de Mosaïque */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            Une cuisine qu&apos;on reconnaît
-            <br />
-            <em className="not-italic text-mosaique-ocre">au premier coup de fourchette.</em>
-          </h1>
-
-          <p className="text-lg text-white/80 mb-8 max-w-lg leading-relaxed">
-            Des recettes ancrées dans les marchés et les saisons, cuisinées avec soin
-            chaque jour, livrées directement chez vous.
+    <section className="bg-mosaique-nuit pt-16 lg:pt-20">
+      <div className="container-site pt-4 pb-10 lg:py-20 grid lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+        <div className="order-2 lg:order-1 flex flex-col gap-5 lg:gap-6">
+          <p className="text-xs lg:text-[13px] font-extrabold uppercase tracking-[0.18em] text-mosaique-or">
+            Abomey-Calavi · Livraison possible
           </p>
-
-          {/* CTAs — pas un seul bouton fantôme */}
+          <h1 className="font-display text-[2.4rem] leading-[1.06] lg:text-[4rem] font-semibold text-mosaique-ivoire">
+            L’élégance du goût, livrée chez vous.
+          </h1>
+          <p className="text-[15px] lg:text-lg leading-relaxed text-[#C9BFAF] max-w-xl">
+            Sauces maison, michoui de mouton, kébabs, chawarmas et sandwichs. Commandez en deux minutes, payez par Mobile Money.
+          </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/menu" className="btn-primary text-base px-8 py-4">
-              Voir le menu
+            <Link href="/menu" className="btn-or text-base">
+              Commander maintenant <ArrowRight size={18} aria-hidden="true" />
             </Link>
-            <Link
-              href="#histoire"
-              className="inline-flex items-center justify-center gap-2 text-white/90 font-medium px-6 py-4 rounded-btn hover:text-white transition-colors"
-            >
-              Notre histoire →
+            <Link href="/menu?categorie=michoui-mouton" className="inline-flex items-center justify-center min-h-[52px] px-6 rounded-btn border border-[#4A3F33] text-mosaique-ivoire font-extrabold hover:border-mosaique-or">
+              Réserver un michoui
             </Link>
           </div>
+          <dl className="grid grid-cols-3 gap-2 lg:gap-8 lg:flex pt-2 lg:pt-4 lg:border-t lg:border-mosaique-brun">
+            {[
+              ['Paiement', 'MoMo · Moov · Carte'],
+              ['Livraison', 'Abomey-Calavi & environs'],
+              ['Commande', 'En ligne ou WhatsApp'],
+            ].map(([titre, valeur]) => (
+              <div key={titre} className="border border-mosaique-trait lg:border-0 rounded-xl p-2.5 lg:p-0 lg:pt-4">
+                <dt className="text-[11px] lg:text-[13px] text-[#A89C8B]">{titre}</dt>
+                <dd className="text-[13px] lg:text-[15px] font-bold text-mosaique-ivoire mt-0.5">{valeur}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
 
-          {/* Fait concret — livraison, pas une rangée d'icônes */}
-          <p className="mt-8 text-sm text-white/60">
-            Livré en environ 45 min · Commande en ligne · Paiement sécurisé
-          </p>
+        <div className="order-1 lg:order-2 relative">
+          <ImagePlat src={image} alt={nomPlat ?? 'Plat du Mosaïque'} priority sizes="(max-width: 1024px) 100vw, 50vw" className="h-[250px] sm:h-[340px] lg:h-[480px] rounded-[22px]" />
+          {nomPlat && prixDes ? (
+            <span className="absolute left-3 bottom-3 bg-mosaique-nuit/85 text-mosaique-or-pale text-xs font-bold px-3 py-2 rounded-full">
+              {nomPlat} · dès {formatPrix(prixDes)}
+            </span>
+          ) : null}
         </div>
       </div>
     </section>

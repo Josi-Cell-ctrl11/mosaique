@@ -4,12 +4,8 @@
 
 @layer base {
   :root {
-    --color-ocre:   #C8792A;
-    --color-terre:  #7A3B1E;
-    --color-ivoire: #FAF6EF;
-    --color-creme:  #F0E8D8;
-    --color-nuit:   #1C1410;
-    --color-gris:   #9E9084;
+    --font-display: 'Playfair Display Variable';
+    --font-body: 'Manrope Variable';
   }
 
   html {
@@ -17,8 +13,7 @@
   }
 
   body {
-    @apply bg-mosaique-ivoire text-mosaique-nuit font-body antialiased;
-    font-feature-settings: "kern" 1, "liga" 1;
+    @apply bg-mosaique-ivoire text-mosaique-terre font-body antialiased;
   }
 
   h1, h2, h3 {
@@ -35,7 +30,7 @@
 
   .prix {
     font-variant-numeric: tabular-nums;
-    @apply font-bold text-mosaique-ocre;
+    @apply font-extrabold text-mosaique-ocre;
   }
 
   * {
@@ -44,69 +39,117 @@
 }
 
 @layer components {
+  /* Bouton principal : noir, texte ivoire */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           bg-mosaique-ocre text-white font-semibold
-           px-6 py-3 rounded-btn
-           min-h-[48px] min-w-[48px]
+           bg-mosaique-nuit text-mosaique-ivoire font-extrabold
+           px-6 py-3 rounded-btn min-h-[52px] min-w-[48px]
            transition-all duration-200 ease-out
-           hover:bg-mosaique-terre active:scale-95
-           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mosaique-terre
+           hover:bg-mosaique-brun active:scale-[0.98]
            disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  /* Bouton doré : à utiliser sur fond sombre ou pour l'action phare */
+  .btn-or {
+    @apply inline-flex items-center justify-center gap-2
+           bg-mosaique-or text-mosaique-nuit font-extrabold
+           px-6 py-3 rounded-btn min-h-[52px] min-w-[48px]
+           transition-all duration-200 ease-out
+           hover:brightness-105 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           bg-transparent text-mosaique-ocre font-semibold
-           px-6 py-3 rounded-btn border-2 border-mosaique-ocre
+           bg-white text-mosaique-terre font-bold
+           px-6 py-3 rounded-btn border border-mosaique-creme
            min-h-[48px] min-w-[48px]
            transition-all duration-200 ease-out
-           hover:bg-mosaique-creme active:scale-95
-           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mosaique-ocre
+           hover:border-mosaique-terre active:scale-[0.98]
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2
-           bg-transparent text-mosaique-nuit font-medium
-           px-4 py-2 rounded-btn
-           min-h-[44px]
+           bg-transparent text-mosaique-terre font-semibold
+           px-4 py-2 rounded-btn min-h-[44px]
            transition-all duration-150
-           hover:bg-mosaique-creme active:scale-95;
+           hover:bg-mosaique-sable active:scale-[0.98];
+  }
+
+  .carte {
+    @apply bg-white rounded-card border border-mosaique-creme;
   }
 
   .carte-plat {
-    @apply bg-white rounded-card shadow-card
+    @apply bg-white rounded-card border border-mosaique-creme
            transition-shadow duration-200 ease-out
-           hover:shadow-card-hover
-           overflow-hidden;
+           hover:shadow-card-hover overflow-hidden;
   }
 
   .input-field {
     @apply w-full bg-white border border-mosaique-creme rounded-btn
-           px-4 py-3 text-mosaique-nuit placeholder-mosaique-gris
-           min-h-[48px]
+           px-4 py-3 text-mosaique-terre placeholder-mosaique-gris
+           min-h-[52px] font-medium
            transition-colors duration-150
-           focus:outline-none focus:border-mosaique-ocre focus:ring-1 focus:ring-mosaique-ocre
-           disabled:bg-mosaique-creme disabled:cursor-not-allowed;
+           focus:outline-none focus:border-mosaique-terre focus:ring-1 focus:ring-mosaique-terre
+           disabled:bg-mosaique-sable disabled:text-mosaique-gris disabled:cursor-not-allowed;
   }
 
   .label-field {
-    @apply block text-sm font-medium text-mosaique-nuit mb-1.5;
+    @apply block text-sm font-bold text-mosaique-terre mb-1.5;
+  }
+
+  .eyebrow {
+    @apply text-xs font-extrabold uppercase tracking-[0.16em] text-mosaique-ocre;
   }
 
   .badge-vegetarien {
-    @apply inline-flex items-center gap-1 bg-mosaique-vert/10 text-mosaique-vert
-           text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply inline-flex items-center gap-1 bg-mosaique-vert text-white
+           text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md;
   }
 
   .badge-epice {
-    @apply inline-flex items-center gap-1 bg-mosaique-epice/10 text-mosaique-epice
-           text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply inline-flex items-center gap-1 bg-mosaique-epice text-white
+           text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md;
+  }
+
+  .badge-signature {
+    @apply inline-flex items-center gap-1 bg-mosaique-dore text-mosaique-ocre-fonce
+           text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md;
+  }
+
+  .pastille {
+    @apply inline-flex items-center text-xs font-extrabold px-2.5 py-1 rounded-full whitespace-nowrap;
   }
 
   .container-site {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Motif « mosaïque » pour les plats sans photo */
+  .motif-mosaique {
+    background-color: #221C16;
+    background-image:
+      linear-gradient(45deg, rgba(212,175,90,.13) 25%, transparent 25%, transparent 75%, rgba(212,175,90,.13) 75%),
+      linear-gradient(45deg, rgba(212,175,90,.13) 25%, transparent 25%, transparent 75%, rgba(212,175,90,.13) 75%);
+    background-size: 18px 18px;
+    background-position: 0 0, 9px 9px;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tableau th {
+    @apply text-left text-xs font-extrabold uppercase tracking-wider text-mosaique-gris
+           px-4 py-3 bg-mosaique-ivoire border-b border-mosaique-creme whitespace-nowrap;
+  }
+  .tableau td {
+    @apply px-4 py-3 border-b border-mosaique-sable text-sm;
   }
 }
 
@@ -126,4 +169,9 @@
 
 .animer-glisser-droite {
   animation: glisser-droite 300ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animer-glisser-bas, .animer-glisser-droite { animation: none; }
+  html { scroll-behavior: auto; }
 }

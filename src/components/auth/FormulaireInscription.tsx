@@ -74,7 +74,7 @@ export function FormulaireInscription() {
   }
 
   return (
-    <div className="bg-white rounded-card shadow-card p-8">
+    <div className="carte p-8">
       <h1 className="font-display text-2xl font-bold text-mosaique-terre mb-2">Créer un compte</h1>
       <p className="text-mosaique-gris text-sm mb-6">
         Un compte est nécessaire pour passer commande.

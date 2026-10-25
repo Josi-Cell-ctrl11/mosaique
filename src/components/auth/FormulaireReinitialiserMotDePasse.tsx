@@ -51,7 +51,7 @@ export function FormulaireReinitialiserMotDePasse() {
   }
 
   return (
-    <div className="bg-white rounded-card shadow-card p-8">
+    <div className="carte p-8">
       <h1 className="font-display text-2xl font-bold text-mosaique-terre mb-2">
         Nouveau mot de passe
       </h1>

@@ -1,79 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
-import { envoyerNotification } from '@/lib/notifications';
+import { signatureValide, synchroniserPaiement } from '@/lib/fedapay';
 
+/**
+ * Webhook FedaPay.
+ * 1. Si FEDAPAY_WEBHOOK_SECRET est défini, la signature est obligatoire.
+ * 2. Dans tous les cas, l'état du paiement est relu auprès de l'API FedaPay
+ *    (montant compris) : le contenu du webhook ne sert qu'à savoir quelle commande vérifier.
+ */
 export async function POST(req: NextRequest) {
-  const supabaseAdmin = createAdminClient();
+  const corpsBrut = await req.text();
 
-  let body: {
-    name: string;
-    object: {
-      id: number;
-      reference: string;
-      status: string;
-      metadata?: {
-        commande_id?: string;
-        commande_numero?: string;
-      };
-    };
-  };
-
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+  const secret = process.env.FEDAPAY_WEBHOOK_SECRET;
+  if (secret) {
+    if (!signatureValide(corpsBrut, req.headers.get('x-fedapay-signature'), secret)) {
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
+    }
+  } else if (process.env.FEDAPAY_ENVIRONMENT === 'production') {
+    console.warn('[FedaPay] FEDAPAY_WEBHOOK_SECRET manquant : signature non vérifiée (le statut reste revérifié via l’API).');
   }
 
-  const { name: eventName, object: transaction } = body;
+  let transactionId: string | undefined;
+  try {
+    const body = JSON.parse(corpsBrut) as { entity?: { id?: number | string }; object?: { id?: number | string } };
+    const id = body.entity?.id ?? body.object?.id;
+    transactionId = id !== undefined ? String(id) : undefined;
+  } catch {
+    return NextResponse.json({ error: 'Corps invalide' }, { status: 400 });
+  }
+  if (!transactionId) return NextResponse.json({ received: true });
 
-  // Chercher la commande par ID FedaPay (plus fiable que metadata)
+  const supabaseAdmin = createAdminClient();
   const { data: commande } = await supabaseAdmin
     .from('commandes')
-    .select('*')
-    .eq('fedapay_transaction_id', String(transaction.id))
-    .single();
+    .select('id')
+    .eq('fedapay_transaction_id', transactionId)
+    .maybeSingle();
 
-  if (!commande) {
-    console.log('Commande non trouvée pour transaction FedaPay:', transaction.id);
-    return NextResponse.json({ received: true });
-  }
+  if (!commande) return NextResponse.json({ received: true });
 
-  const commandeId = commande.id;
-
-  // Mapper le statut FedaPay
-  let statutPaiement: 'en_attente' | 'paye' | 'echoue' | 'rembourse' = 'en_attente';
-  let statutCommande: string | null = null;
-
-  if (eventName === 'transaction.approved' || transaction.status === 'approved') {
-    statutPaiement = 'paye';
-    statutCommande = 'en_preparation';
-  } else if (eventName === 'transaction.declined' || transaction.status === 'declined') {
-    statutPaiement = 'echoue';
-  } else if (transaction.status === 'refunded') {
-    statutPaiement = 'rembourse';
-    statutCommande = 'annulee';
-  }
-
-  // Mettre à jour la commande
-  const updateData: Record<string, string> = { statut_paiement: statutPaiement };
-  if (statutCommande) updateData.statut = statutCommande;
-
-  const { data: commandeMaj } = await supabaseAdmin
-    .from('commandes')
-    .update(updateData)
-    .eq('id', commandeId)
-    .select('*, profiles(*)')
-    .single();
-
-  // Envoyer notification client si paiement confirmé
-  if (commandeMaj && statutPaiement === 'paye') {
-    await envoyerNotification({
-      type: 'commande_confirmee',
-      commandeId: commandeMaj.id,
-      commandeNumero: commandeMaj.numero,
-      userId: commandeMaj.utilisateur_id,
-    }).catch(console.error);
-  }
-
-  return NextResponse.json({ received: true });
+  const resultat = await synchroniserPaiement(commande.id);
+  return NextResponse.json({ received: true, statut: resultat });
 }

@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Le menu',
-  description: 'Parcourez tous les plats Mosaïque — entrées, plats principaux, grillades, desserts et boissons.',
+  description: 'Sauces gombo, assrokouin, arachide et crin-crin, michoui, kébabs, chawarmas, sandwichs, crêpes et gaufres.',
 };
 
 async function getMenuData() {
@@ -24,7 +24,7 @@ async function getMenuData() {
       supabase.from('categories').select('*').order('ordre', { ascending: true }),
       supabase
         .from('plats')
-        .select('*, categorie:categories(*)')
+        .select('*, categorie:categories(*), options:options_plat(id, required)')
         .eq('disponible', true)
         .order('ordre', { ascending: true }),
     ]);
@@ -46,12 +46,12 @@ async function getMenuData() {
   }
 }
 
-export default async function PageMenu() {
+export default async function PageMenu({ searchParams }: { searchParams: { categorie?: string } }) {
   const { categories, plats } = await getMenuData();
 
   return (
-    <div className="pt-20 lg:pt-24 min-h-screen">
-      <MenuClient categories={categories} plats={plats} />
+    <div className="min-h-screen">
+      <MenuClient categories={categories} plats={plats} categorieInitiale={searchParams.categorie} />
     </div>
   );
 }

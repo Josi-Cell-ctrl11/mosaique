@@ -56,7 +56,7 @@ export function OptionsAdminClient({ options: initial, plats }: Props) {
   }
 
   return <div className="space-y-8">
-    <div className="bg-white rounded-card shadow-card p-6 space-y-4">
+    <div className="carte p-6 space-y-4">
       <h2 className="font-semibold text-mosaique-nuit">Créer une option de plat</h2>
       <div className="grid md:grid-cols-4 gap-3">
         <select className="input-field" value={nouvelle.plat_id} onChange={(e) => setNouvelle((f) => ({ ...f, plat_id: e.target.value }))}><option value="">Choisir un plat…</option>{plats.map((plat) => <option key={plat.id} value={plat.id}>{plat.nom}</option>)}</select>
@@ -70,7 +70,7 @@ export function OptionsAdminClient({ options: initial, plats }: Props) {
       {options.length === 0 ? <p className="text-sm text-mosaique-gris">Aucune option configurée.</p> : options.map((option) => {
         const ouvert = Boolean(ouvertes[option.id]);
         const form = valeurs[option.id] ?? { label: '', prix_sup: '0' };
-        return <div key={option.id} className="bg-white rounded-card shadow-card overflow-hidden">
+        return <div key={option.id} className="carte overflow-hidden">
           <div className="flex items-center justify-between gap-3 p-4"><button className="flex items-center gap-3 text-left" onClick={() => setOuvertes((s) => ({ ...s, [option.id]: !ouvert }))}>{ouvert ? <ChevronDown size={18} /> : <ChevronRight size={18} />}<span className="font-medium text-mosaique-nuit">{option.nom}</span><span className="text-xs text-mosaique-gris">{option.platNom ?? 'Plat'} · {option.required ? 'obligatoire' : 'facultative'}</span></button><button onClick={() => supprimerOption(option)} className="p-2 text-mosaique-gris hover:text-mosaique-epice" aria-label={`Supprimer ${option.nom}`}><Trash2 size={16} /></button></div>
           {ouvert && <div className="border-t border-mosaique-creme p-4 space-y-3">
             {(option.valeurs ?? []).map((valeur) => <div key={valeur.id} className="flex items-center justify-between text-sm"><span>{valeur.label}</span><span className="flex items-center gap-3"><span className="prix">{valeur.prix_sup ? `+ ${formatPrix(valeur.prix_sup)}` : 'Inclus'}</span><button onClick={() => supprimerValeur(option.id, valeur)} className="text-mosaique-gris hover:text-mosaique-epice" aria-label={`Supprimer ${valeur.label}`}><Trash2 size={14} /></button></span></div>)}

@@ -1,253 +1,155 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Flame, Leaf, Search, X } from 'lucide-react';
 import type { Plat, Categorie } from '@/types';
 import { CartePlat } from './CartePlat';
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
-import { ArrowLeft, ChevronRight, Flame, Leaf, UtensilsCrossed } from 'lucide-react';
+import { cn, formatPrix } from '@/lib/utils';
+import { usePanier } from '@/store/panier';
 
 interface MenuClientProps {
   categories: Categorie[];
   plats: Plat[];
+  categorieInitiale?: string;
 }
 
-type Filtre = 'tous' | 'vegetarien' | 'epice';
+const normaliser = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-// Photo éditoriale de rupture entre blocs de plats.
-const PHOTOS_RUPTURE = [
-  {
-    url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1400&q=80',
-    legende: 'Fait maison, chaque matin.',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1400&q=80',
-    legende: "Des saveurs qu'on reconnaît au premier coup de fourchette.",
-  },
-];
+export function MenuClient({ categories, plats, categorieInitiale }: MenuClientProps) {
+  const initiale = categories.find((c) => c.slug === categorieInitiale)?.id ?? 'tous';
+  const [categorieActive, setCategorieActive] = useState<string>(initiale);
+  const [recherche, setRecherche] = useState('');
+  const [epice, setEpice] = useState(false);
+  const [vege, setVege] = useState(false);
 
-export function MenuClient({ categories, plats }: MenuClientProps) {
-  const [categorieActive, setCategorieActive] = useState<string>('tous');
-  const [filtre, setFiltre] = useState<Filtre>('tous');
-  const [vueFamilles, setVueFamilles] = useState(true);
+  useEffect(() => setCategorieActive(initiale), [initiale]);
 
   const platsFiltres = useMemo(() => {
-    let resultat = plats;
-    if (categorieActive !== 'tous') {
-      resultat = resultat.filter((p) => p.categorie_id === categorieActive);
-    }
-    if (filtre === 'vegetarien') {
-      resultat = resultat.filter((p) => p.est_vegetarien);
-    } else if (filtre === 'epice') {
-      resultat = resultat.filter((p) => p.est_epice);
-    }
-    return resultat;
-  }, [plats, categorieActive, filtre]);
+    const q = normaliser(recherche.trim());
+    return plats.filter((p) =>
+      (categorieActive === 'tous' || p.categorie_id === categorieActive) &&
+      (!epice || p.est_epice) &&
+      (!vege || p.est_vegetarien) &&
+      (!q || normaliser(`${p.nom} ${p.description} ${p.ingredients ?? ''}`).includes(q))
+    );
+  }, [plats, categorieActive, recherche, epice, vege]);
 
-  const parCategorie = useMemo(() => {
-    if (categorieActive !== 'tous') {
-      const categorie = categories.find((c) => c.id === categorieActive);
-      return categorie ? [{ categorie, plats: platsFiltres }] : [];
-    }
-    return categories
-      .map((cat) => ({
-        categorie: cat,
-        plats: platsFiltres.filter((p) => p.categorie_id === cat.id),
-      }))
-      .filter((g) => g.plats.length > 0);
-  }, [categories, platsFiltres, categorieActive]);
+  const groupes = useMemo(
+    () => categories
+      .map((categorie) => ({ categorie, plats: platsFiltres.filter((p) => p.categorie_id === categorie.id) }))
+      .filter((g) => g.plats.length > 0),
+    [categories, platsFiltres]
+  );
 
-  function ouvrirFamille(id: string) {
-    setCategorieActive(id);
-    setFiltre('tous');
-    setVueFamilles(false);
-  }
-
-  function afficherToutesLesVarietes() {
-    setCategorieActive('tous');
-    setFiltre('tous');
-    setVueFamilles(false);
-  }
-
-  function revenirAuxFamilles() {
-    setCategorieActive('tous');
-    setFiltre('tous');
-    setVueFamilles(true);
-  }
+  const chips = [{ id: 'tous', nom: 'Tout', n: plats.length }, ...categories.map((c) => ({ id: c.id, nom: c.nom, n: plats.filter((p) => p.categorie_id === c.id).length }))].filter((c) => c.n > 0);
 
   return (
     <>
-      {/* En-tête menu */}
-      <div className="bg-mosaique-terre text-white pt-10 pb-12">
-        <div className="container-site">
-          <p className="text-mosaique-or text-sm uppercase tracking-[0.22em] mb-3">La carte Mosaïque</p>
-          <h1 className="font-display text-4xl lg:text-5xl font-bold mb-3">
-            {vueFamilles ? 'Choisissez votre univers' : categorieActive === 'tous' ? 'Toutes les variétés' : categories.find((c) => c.id === categorieActive)?.nom ?? 'La carte'}
-          </h1>
-          <p className="text-white/70 text-lg max-w-xl">
-            {vueFamilles
-              ? 'Parcourez nos familles de recettes, puis découvrez les préparations proposées dans chacune.'
-              : `${platsFiltres.length} variété${platsFiltres.length > 1 ? 's' : ''} disponible${platsFiltres.length > 1 ? 's' : ''} selon l'approvisionnement du marché.`}
-          </p>
+      <div className="bg-mosaique-nuit pt-16 lg:pt-20">
+        <div className="container-site pt-5 pb-5 lg:pt-10 lg:pb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div>
+            <p className="hidden lg:block text-[13px] font-extrabold uppercase tracking-[0.18em] text-mosaique-or mb-2">La carte du Mosaïque</p>
+            <h1 className="font-display text-[1.6rem] lg:text-5xl font-semibold text-mosaique-ivoire">Notre menu</h1>
+          </div>
+          <label className="relative block w-full lg:max-w-md">
+            <span className="sr-only">Rechercher un plat</span>
+            <Search size={20} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C8073]" aria-hidden="true" />
+            <input
+              type="search"
+              value={recherche}
+              onChange={(e) => setRecherche(e.target.value)}
+              placeholder="Gombo, kébab, michoui…"
+              className="w-full h-[50px] rounded-[14px] border border-mosaique-trait bg-mosaique-brun text-mosaique-ivoire placeholder-[#8C8073] font-medium pl-11 pr-11 focus:outline-none focus:border-mosaique-or"
+            />
+            {recherche && (
+              <button onClick={() => setRecherche('')} aria-label="Effacer la recherche" className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-[#C9BFAF]">
+                <X size={18} aria-hidden="true" />
+              </button>
+            )}
+          </label>
         </div>
       </div>
 
-      {/* Navigation catégories */}
       <div className="sticky top-16 lg:top-20 z-30 bg-mosaique-ivoire/95 backdrop-blur-sm border-b border-mosaique-creme">
         <div className="container-site">
-          <div className="flex gap-1 overflow-x-auto scrollbar-none py-3 -mx-4 px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="Familles du menu">
-            <button
-              role="tab"
-              aria-selected={vueFamilles}
-              onClick={revenirAuxFamilles}
-              className={cn(
-                'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap min-h-[40px]',
-                vueFamilles ? 'bg-mosaique-ocre text-white' : 'text-mosaique-gris hover:text-mosaique-nuit hover:bg-mosaique-creme'
-              )}
-            >
-              Les familles
-            </button>
-            {categories.map((cat) => {
-              const nb = plats.filter((p) => p.categorie_id === cat.id).length;
+          <div role="tablist" aria-label="Catégories" className="flex gap-2 overflow-x-auto scrollbar-none py-3 -mx-4 px-4 sm:mx-0 sm:px-0">
+            {chips.map((c) => {
+              const actif = categorieActive === c.id;
               return (
                 <button
-                  key={cat.id}
+                  key={c.id}
                   role="tab"
-                  aria-selected={!vueFamilles && categorieActive === cat.id}
-                  onClick={() => ouvrirFamille(cat.id)}
+                  aria-selected={actif}
+                  onClick={() => setCategorieActive(c.id)}
                   className={cn(
-                    'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap min-h-[40px]',
-                    !vueFamilles && categorieActive === cat.id ? 'bg-mosaique-ocre text-white' : 'text-mosaique-gris hover:text-mosaique-nuit hover:bg-mosaique-creme'
+                    'shrink-0 min-h-[44px] px-4 rounded-full text-sm font-bold whitespace-nowrap border transition-colors',
+                    actif ? 'bg-mosaique-nuit text-mosaique-or border-mosaique-nuit' : 'bg-white text-mosaique-terre border-[#E2D8C6] hover:border-mosaique-terre'
                   )}
                 >
-                  {cat.nom}<span className="ml-1.5 opacity-60 text-xs">({nb})</span>
+                  {c.nom}
                 </button>
               );
             })}
           </div>
-
-          {!vueFamilles && (
-            <div className="flex items-center gap-2 pb-3 -mx-4 px-4 sm:mx-0 sm:px-0">
-              <span className="text-xs text-mosaique-gris mr-1">Filtrer :</span>
-              {([
-                { value: 'tous', label: 'Tous' },
-                { value: 'vegetarien', label: 'Végétarien', Icon: Leaf },
-                { value: 'epice', label: 'Épicé', Icon: Flame },
-              ] as { value: Filtre; label: string; Icon?: typeof Leaf }[]).map(({ value, label, Icon }) => (
-                <button
-                  key={value}
-                  onClick={() => setFiltre(value)}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[36px]',
-                    filtre === value ? 'bg-mosaique-nuit text-white' : 'bg-mosaique-creme text-mosaique-gris hover:text-mosaique-nuit'
-                  )}
-                >
-                  {Icon && <Icon size={13} aria-hidden="true" />}
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Contenu */}
-      <div className="container-site py-10">
-        {vueFamilles ? (
-          <section aria-labelledby="familles-title">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-              <div>
-                <p className="text-mosaique-ocre text-sm font-semibold uppercase tracking-[0.18em] mb-2">Laissez-vous guider</p>
-                <h2 id="familles-title" className="font-display text-3xl font-bold text-mosaique-terre">Nos familles de recettes</h2>
-                <p className="text-mosaique-gris mt-2 max-w-2xl">Une image pour chaque univers, puis les variétés et les prix à l’intérieur. Une carte plus simple à parcourir, plus fidèle à la richesse de Mosaïque.</p>
-              </div>
-              <button onClick={afficherToutesLesVarietes} className="btn-secondary whitespace-nowrap">Voir toutes les variétés</button>
-            </div>
+      <div className="container-site pt-3 pb-28 lg:pb-16">
+        <div className="flex flex-wrap items-center gap-2 py-2">
+          <button onClick={() => setEpice((v) => !v)} aria-pressed={epice} className={cn('inline-flex items-center gap-1.5 min-h-[36px] px-3 rounded-full text-[13px] font-bold border transition-colors', epice ? 'bg-mosaique-epice text-white border-mosaique-epice' : 'border-dashed border-[#D9CDB8] text-mosaique-gris')}>
+            <Flame size={14} aria-hidden="true" /> Épicé
+          </button>
+          <button onClick={() => setVege((v) => !v)} aria-pressed={vege} className={cn('inline-flex items-center gap-1.5 min-h-[36px] px-3 rounded-full text-[13px] font-bold border transition-colors', vege ? 'bg-mosaique-vert text-white border-mosaique-vert' : 'border-dashed border-[#D9CDB8] text-mosaique-gris')}>
+            <Leaf size={14} aria-hidden="true" /> Végétarien
+          </button>
+          <span className="ml-auto text-[13px] text-mosaique-gris" aria-live="polite">{platsFiltres.length} plat{platsFiltres.length > 1 ? 's' : ''}</span>
+        </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((cat) => {
-                const platsFamille = plats.filter((p) => p.categorie_id === cat.id);
-                const imageUrl = platsFamille.find((p) => p.image_url)?.image_url;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => ouvrirFamille(cat.id)}
-                    className="group text-left bg-white rounded-card shadow-card overflow-hidden hover:shadow-card-hover transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mosaique-ocre"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-mosaique-nuit">
-                      {imageUrl ? (
-                        <Image src={imageUrl} alt={`Famille ${cat.nom}`} fill className="object-contain transition-transform duration-300 group-hover:scale-[1.03]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-mosaique-or"><UtensilsCrossed size={42} aria-hidden="true" /></div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" aria-hidden="true" />
-                      <span className="absolute bottom-4 left-4 text-xs font-semibold uppercase tracking-[0.18em] text-mosaique-or">{platsFamille.length} variété{platsFamille.length > 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="p-5 flex items-center justify-between gap-4">
-                      <div>
-                        <h3 className="font-display text-2xl font-bold text-mosaique-terre">{cat.nom}</h3>
-                        <p className="text-sm text-mosaique-gris mt-1">Découvrir la famille</p>
-                      </div>
-                      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-mosaique-creme text-mosaique-ocre group-hover:bg-mosaique-ocre group-hover:text-white transition-colors" aria-hidden="true"><ChevronRight size={20} /></span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+        {groupes.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="font-display text-2xl">Aucun plat trouvé</p>
+            <button onClick={() => { setRecherche(''); setEpice(false); setVege(false); setCategorieActive('tous'); }} className="mt-4 btn-secondary">
+              Réinitialiser
+            </button>
+          </div>
         ) : (
-          <section aria-labelledby="varietes-title">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-              <div>
-                <button onClick={revenirAuxFamilles} className="inline-flex items-center gap-2 text-sm text-mosaique-ocre font-medium hover:underline mb-3"><ArrowLeft size={16} /> Retour aux familles</button>
-                <h2 id="varietes-title" className="font-display text-3xl font-bold text-mosaique-terre">{categorieActive === 'tous' ? 'Toutes les variétés' : categories.find((c) => c.id === categorieActive)?.nom}</h2>
-              </div>
-              <p className="text-sm text-mosaique-gris">{platsFiltres.length} plat{platsFiltres.length > 1 ? 's' : ''} au menu</p>
-            </div>
-
-            {platsFiltres.length === 0 ? (
-              <div className="text-center py-20"><p className="text-mosaique-gris text-lg">Aucun plat ne correspond à ce filtre.</p><button onClick={() => setFiltre('tous')} className="mt-4 btn-secondary">Réinitialiser le filtre</button></div>
-            ) : (
-              <div className="space-y-16">
-                {parCategorie.map((groupe, gi) => (
-                  <section key={groupe.categorie.id} aria-labelledby={`cat-${groupe.categorie.slug}`}>
-                    {categorieActive === 'tous' && <h3 id={`cat-${groupe.categorie.slug}`} className="font-display text-2xl font-bold text-mosaique-terre mb-6 pb-4 border-b border-mosaique-creme">{groupe.categorie.nom}</h3>}
-                    <PlatsAvecRuptures plats={groupe.plats} offsetRupture={gi} />
-                  </section>
-                ))}
-              </div>
-            )}
-          </section>
+          <div className="flex flex-col gap-8 lg:gap-12 mt-2">
+            {groupes.map((g) => (
+              <section key={g.categorie.id} aria-labelledby={`cat-${g.categorie.slug}`}>
+                <h2 id={`cat-${g.categorie.slug}`} className="font-display text-[1.4rem] lg:text-3xl font-semibold mb-3 lg:mb-5">{g.categorie.nom}</h2>
+                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-5">
+                  {g.plats.map((p) => (
+                    <li key={p.id} className="relative"><CartePlat plat={p} /></li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
         )}
       </div>
+
+      <BarrePanierFlottante />
     </>
   );
 }
 
-function PlatsAvecRuptures({ plats, offsetRupture }: { plats: Plat[]; offsetRupture: number }) {
-  const RUPTURE_TOUS_LES = 10;
-  const elements: React.ReactNode[] = [];
-  let ruptureIndex = 0;
-
-  plats.forEach((plat, i) => {
-    elements.push(<li key={plat.id}><CartePlat plat={plat} /></li>);
-    if ((i + 1) % RUPTURE_TOUS_LES === 0 && i < plats.length - 1) {
-      const photo = PHOTOS_RUPTURE[(ruptureIndex + offsetRupture) % PHOTOS_RUPTURE.length];
-      ruptureIndex++;
-      elements.push(<li key={`rupture-${i}`} className="col-span-full"><RuptureEditoriale photo={photo.url} legende={photo.legende} /></li>);
-    }
-  });
-
-  return <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{elements}</ul>;
-}
-
-function RuptureEditoriale({ photo, legende }: { photo: string; legende: string }) {
+function BarrePanierFlottante() {
+  const { totalArticles, sousTotal, ouvrirPanier } = usePanier();
+  const [monte, setMonte] = useState(false);
+  useEffect(() => setMonte(true), []);
+  const nb = monte ? totalArticles() : 0;
+  if (nb === 0) return null;
   return (
-    <div className="relative h-48 sm:h-64 rounded-card overflow-hidden my-2">
-      <Image src={photo} alt={legende} fill className="object-cover" sizes="(max-width: 1280px) 100vw, 1280px" />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(28,20,16,0.7) 0%, transparent 60%)' }} aria-hidden="true" />
-      <p className="absolute left-8 bottom-8 font-display text-xl font-semibold text-white max-w-sm">{legende}</p>
+    <div className="md:hidden fixed left-4 right-4 bottom-[88px] z-30">
+      <button onClick={ouvrirPanier} className="w-full min-h-[60px] rounded-[18px] bg-mosaique-nuit text-mosaique-ivoire flex items-center justify-between pl-[18px] pr-2.5 shadow-flottant">
+        <span className="flex flex-col items-start">
+          <span className="text-xs text-[#C9BFAF]">{nb} article{nb > 1 ? 's' : ''}</span>
+          <span className="font-extrabold">{formatPrix(sousTotal())}</span>
+        </span>
+        <span className="min-h-[44px] px-4 rounded-xl bg-mosaique-or text-mosaique-nuit font-extrabold text-[15px] flex items-center">Voir le panier</span>
+      </button>
+      <Link href="/checkout" className="sr-only">Passer la commande</Link>
     </div>
   );
 }
