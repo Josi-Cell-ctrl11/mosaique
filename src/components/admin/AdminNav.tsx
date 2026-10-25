@@ -25,9 +25,12 @@ export function AdminNav({ badges }: { badges: { commandes: number; avis: number
   return (
     <aside className="flex-[1_1_248px] max-w-full lg:max-w-[248px] bg-mosaique-nuit px-3.5 py-4 lg:py-6 flex flex-col gap-1">
       <div className="flex items-center justify-between gap-3 px-2.5 pb-3 lg:pb-6">
-        <Link href="/admin" className="flex flex-col">
-          <Logo taille="sm" />
-          <span className="text-xs text-[#A89C8B] pl-[30px] -mt-0.5">Back-office</span>
+        <Link href="/admin" className="flex items-center gap-2.5" aria-label="Back-office Le Mosaïque">
+          <Logo taille="sm" avecNom={false} />
+          <span className="flex flex-col leading-tight">
+            <span className="font-display font-semibold tracking-[0.14em] text-mosaique-or">LE MOSAÏQUE</span>
+            <span className="text-xs text-[#A89C8B]">Back-office</span>
+          </span>
         </Link>
         <Link href="/" className="lg:hidden text-sm font-bold text-[#C9BFAF] min-h-[44px] flex items-center">Voir le site ↗</Link>
       </div>

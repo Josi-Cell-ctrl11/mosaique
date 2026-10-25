@@ -1,19 +1,30 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
-/** Logo Le Mosaïque : quatre tuiles dorées + nom en capitales. */
-export function Logo({ taille = 'md', className, avecNom = true }: { taille?: 'sm' | 'md' | 'lg'; className?: string; avecNom?: boolean }) {
-  const tuile = { sm: 'w-5 h-5', md: 'w-6 h-6', lg: 'w-10 h-10' }[taille];
+type Taille = 'sm' | 'md' | 'lg';
+
+const EMBLEME: Record<Taille, number> = { sm: 32, md: 40, lg: 96 };
+
+/**
+ * Logo Le Mosaïque : emblème doré (toque, couteau, fourchettes) + nom en capitales.
+ * L'emblème est sur fond noir : à utiliser sur les surfaces sombres (en-tête, pied de page, back-office).
+ * En taille « lg », l'emblème est au-dessus du nom.
+ */
+export function Logo({ taille = 'md', className, avecNom = true }: { taille?: Taille; className?: string; avecNom?: boolean }) {
+  const px = EMBLEME[taille];
   const texte = { sm: 'text-base', md: 'text-lg lg:text-xl', lg: 'text-2xl' }[taille];
   return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
-      <span className={cn('grid grid-cols-2 gap-[2px] shrink-0', tuile)} aria-hidden="true">
-        <span className="bg-mosaique-or rounded-[2px]" />
-        <span className="bg-mosaique-ocre rounded-[2px]" />
-        <span className="bg-mosaique-or-pale rounded-[2px]" />
-        <span className="bg-mosaique-or rounded-[2px]" />
-      </span>
+    <span className={cn('inline-flex items-center', taille === 'lg' ? 'flex-col gap-3' : 'gap-2.5', className)}>
+      <Image
+        src="/assets/logo.jpg"
+        alt=""
+        width={px}
+        height={px}
+        priority={taille !== 'sm'}
+        className={cn('shrink-0 object-cover', taille === 'lg' ? 'rounded-2xl' : 'rounded-lg')}
+      />
       {avecNom && (
-        <span className={cn('font-display font-semibold tracking-[0.14em] text-mosaique-or', texte)}>LE MOSAÏQUE</span>
+        <span className={cn('font-display font-semibold tracking-[0.14em] text-mosaique-or whitespace-nowrap', texte)}>LE MOSAÏQUE</span>
       )}
     </span>
   );
