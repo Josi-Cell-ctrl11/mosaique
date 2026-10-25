@@ -14,7 +14,7 @@ Un site de commande de nourriture en ligne, entièrement en français, avec paie
 | Stockage photos | Supabase Storage |
 | Paiement | FedaPay |
 | Notifications | Novu |
-| Hébergement | Cloudflare Pages |
+| Hébergement | Vercel |
 
 ---
 
@@ -24,10 +24,10 @@ Un site de commande de nourriture en ligne, entièrement en français, avec paie
 npm install
 ```
 
-Puis copier `.env.local` et remplir les clés :
+Puis copier `.env.example` et remplir les clés secrètes :
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
 ---
@@ -44,17 +44,23 @@ cp .env.local.example .env.local
 | `FEDAPAY_ENVIRONMENT` | `sandbox` ou `production` |
 | `NOVU_API_KEY` | Clé API Novu |
 | `NEXT_PUBLIC_APP_URL` | URL publique du site (pour les redirections) |
+| `FEDAPAY_WEBHOOK_SECRET` | Secret du webhook FedaPay (signature vérifiée) |
+| `NEXT_PUBLIC_WHATSAPP` | Numéro WhatsApp affiché dans le pied de page |
 | `ADMIN_EMAIL` | Email de l'admin pour les notifications |
 
 ---
 
 ## Supabase — Mise en place
 
+Projet actuel : **mosaique** (`vbspcumfrvifqmjvxgrs`, région Paris), restauré le 25/10/2026 depuis la sauvegarde du 21/08/2026.
+
+Pour repartir de zéro :
 1. Créer un projet sur [supabase.com](https://supabase.com)
-2. Dans **SQL Editor**, exécuter `supabase/schema.sql`
-3. Puis exécuter `supabase/seed.sql` pour le menu placeholder
-4. Dans **Storage**, créer un bucket public nommé `photos`
-5. Dans **Authentication > Settings**, configurer l'URL du site
+2. Dans **SQL Editor**, exécuter `supabase/schema.sql` (crée aussi le bucket `photos`)
+3. Optionnel : `supabase/seed.sql` pour un menu d'exemple
+4. Dans **Authentication > URL Configuration**, renseigner l'URL du site, et réactiver Google dans **Providers**
+
+Sécurité : les commandes ne sont créées que par le serveur, qui recalcule tous les prix ; le statut payé n'est accordé qu'après vérification auprès de l'API FedaPay.
 
 ### ⚠️ Plan gratuit Supabase
 Le projet est mis en pause après **7 jours d'inactivité**. Pour éviter ça en production :
@@ -104,13 +110,9 @@ Pour accéder à l'admin, passer `is_admin = true` sur votre profil dans Supabas
 
 ---
 
-## Déploiement Cloudflare Pages
+## Déploiement Vercel
 
-1. Connecter le repo GitHub à Cloudflare Pages
-2. Build command : `npm run build`
-3. Build output : `.next`
-4. Framework preset : `Next.js`
-5. Ajouter toutes les variables d'environnement dans Cloudflare Pages Settings
+Le dépôt est connecté au projet Vercel `mosaique` : chaque push sur `main` part en production, chaque branche a sa préversion. Les variables d'environnement se règlent dans Vercel > Settings > Environment Variables.
 
 ---
 

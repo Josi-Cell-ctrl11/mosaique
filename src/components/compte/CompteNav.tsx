@@ -2,58 +2,42 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingBag, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 const LIENS = [
-  { href: '/compte/commandes', label: 'Mes commandes', icon: ShoppingBag },
-  { href: '/compte/profil', label: 'Mon profil', icon: User },
+  { href: '/compte/commandes', label: 'Commandes' },
+  { href: '/compte/profil', label: 'Profil' },
 ];
 
 export function CompteNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
 
   async function seDeconnecter() {
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.push('/');
     router.refresh();
   }
 
   return (
-    <nav className="bg-white rounded-card shadow-card p-4">
-      <p className="text-xs font-semibold uppercase tracking-widest text-mosaique-gris px-3 mb-3">
-        Mon espace
-      </p>
-      <ul className="space-y-1">
-        {LIENS.map(({ href, label, icon: Icon }) => (
-          <li key={href}>
-            <Link
-              href={href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-medium transition-colors',
-                pathname.startsWith(href)
-                  ? 'bg-mosaique-creme text-mosaique-ocre'
-                  : 'text-mosaique-nuit hover:bg-mosaique-creme hover:text-mosaique-ocre'
-              )}
-            >
-              <Icon size={16} />
-              {label}
-            </Link>
-          </li>
-        ))}
-        <li>
-          <button
-            onClick={seDeconnecter}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-medium text-mosaique-gris hover:text-mosaique-epice hover:bg-mosaique-creme transition-colors w-full"
+    <nav aria-label="Espace client" className="flex items-end gap-6">
+      {LIENS.map(({ href, label }) => {
+        const actif = pathname.startsWith(href) || (href === '/compte/commandes' && pathname === '/compte');
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-current={actif ? 'page' : undefined}
+            className={cn('pt-2.5 pb-3 border-b-[3px] text-[15px] transition-colors', actif ? 'border-mosaique-or text-mosaique-or font-extrabold' : 'border-transparent text-[#C9BFAF] font-bold hover:text-mosaique-ivoire')}
           >
-            <LogOut size={16} />
-            Se déconnecter
-          </button>
-        </li>
-      </ul>
+            {label}
+          </Link>
+        );
+      })}
+      <button onClick={seDeconnecter} className="ml-auto pt-2.5 pb-3 text-sm font-bold text-[#C9BFAF] hover:text-mosaique-ivoire">
+        Se déconnecter
+      </button>
     </nav>
   );
 }

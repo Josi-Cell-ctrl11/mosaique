@@ -1,3 +1,4 @@
+import { COULEUR_PAIEMENT } from '@/lib/statuts';
 import { createClient } from '@/lib/supabase/server';
 import { formatPrix, formatDate } from '@/lib/utils';
 import { STATUT_PAIEMENT_LABELS } from '@/types';
@@ -7,12 +8,7 @@ import type { Commande } from '@/types';
 export const metadata: Metadata = { title: 'Suivi des paiements' };
 export const revalidate = 0;
 
-const PAIEMENT_COULEURS: Record<string, string> = {
-  en_attente: 'bg-yellow-100 text-yellow-800',
-  paye:       'bg-green-100 text-green-800',
-  echoue:     'bg-red-100 text-red-800',
-  rembourse:  'bg-gray-100 text-gray-800',
-};
+const PAIEMENT_COULEURS: Record<string, string> = COULEUR_PAIEMENT;
 
 export default async function AdminPaiements() {
   const supabase = createClient();
@@ -38,18 +34,18 @@ export default async function AdminPaiements() {
 
       {/* Métriques */}
       <div className="grid sm:grid-cols-2 gap-4 mb-8">
-        <div className="bg-white rounded-card shadow-card p-5">
+        <div className="carte p-5">
           <p className="text-xs text-mosaique-gris uppercase tracking-wide mb-1">Total encaissé</p>
           <p className="font-display text-2xl font-bold text-mosaique-vert">{formatPrix(totalPaye)}</p>
         </div>
-        <div className="bg-white rounded-card shadow-card p-5">
+        <div className="carte p-5">
           <p className="text-xs text-mosaique-gris uppercase tracking-wide mb-1">En attente</p>
           <p className="font-display text-2xl font-bold text-yellow-600">{formatPrix(totalEnAttente)}</p>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-card shadow-card overflow-hidden">
+      <div className="carte overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

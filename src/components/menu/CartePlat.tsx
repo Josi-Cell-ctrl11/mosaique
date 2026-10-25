@@ -1,93 +1,42 @@
-'use client';
-
-import Image from 'next/image';
 import Link from 'next/link';
-import { Flame, Leaf, Plus, UtensilsCrossed } from 'lucide-react';
 import type { Plat } from '@/types';
 import { formatPrix } from '@/lib/utils';
-import { usePanier } from '@/store/panier';
-import { toast } from 'sonner';
+import { ImagePlat } from '@/components/ui/ImagePlat';
+import { BoutonAjoutRapide } from './BoutonAjoutRapide';
 
-interface CartePlatProps {
-  plat: Plat;
-}
+const estSignature = (p: Plat) => /mosa[iï]que/i.test(p.nom) || p.est_vedette;
 
-export function CartePlat({ plat }: CartePlatProps) {
-  const { ajouterArticle } = usePanier();
-
-  function ajouterAuPanier(e: React.MouseEvent) {
-    e.preventDefault();
-    ajouterArticle({
-      platId: plat.id,
-      nom: plat.nom,
-      prix: plat.prix,
-      image_url: plat.image_url,
-      quantite: 1,
-      prixOptions: 0,
-    });
-    toast.success('Ajouté au panier', {
-      duration: 1200,
-      style: { pointerEvents: 'none' },
-    });
-  }
-
+/** Carte de plat : en ligne sur mobile (texte + photo à droite), en colonne sur grand écran. */
+export function CartePlat({ plat }: { plat: Plat }) {
   return (
-    <article className="carte-plat group">
-      <Link href={`/menu/${plat.slug}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-mosaique-nuit">
-          {plat.image_url ? (
-            <>
-              <Image
-                src={plat.image_url}
-                alt={plat.nom}
-                fill
-                className="object-contain transition-transform duration-300 ease-mosaique group-hover:scale-[1.03]"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" aria-hidden="true" />
-            </>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-2 group-hover:bg-mosaique-terre transition-colors">
-              <UtensilsCrossed size={28} className="text-mosaique-or/60" aria-hidden="true" />
-              <span className="text-xs text-mosaique-or/40 font-medium tracking-widest uppercase">Mosaïque</span>
-            </div>
-          )}
+    <article className="carte-plat h-full flex flex-row-reverse lg:flex-col gap-3.5 lg:gap-0 p-3 lg:p-0">
+      <div className="relative shrink-0">
+        <ImagePlat
+          src={plat.image_url}
+          alt={plat.nom}
+          sizes="(max-width: 1024px) 108px, 33vw"
+          className="w-[108px] h-[108px] lg:w-full lg:h-[180px] rounded-[14px] lg:rounded-none"
+        />
+        <BoutonAjoutRapide plat={plat} variante="or" className="absolute -right-1.5 -bottom-1.5 lg:hidden" />
+      </div>
 
-          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-            {plat.est_vegetarien && (
-              <span className="badge-vegetarien" title="Plat végétarien">
-                <Leaf size={12} strokeWidth={2.2} aria-hidden="true" /> Végétarien
-              </span>
-            )}
-            {plat.est_epice && (
-              <span className="badge-epice" title="Plat épicé">
-                <Flame size={12} strokeWidth={2.2} aria-hidden="true" /> Épicé
-              </span>
-            )}
+      <div className="flex-1 min-w-0 flex flex-col gap-1.5 lg:p-4">
+        {(estSignature(plat) || plat.est_epice || plat.est_vegetarien) && (
+          <div className="flex flex-wrap gap-1.5">
+            {estSignature(plat) && <span className="badge-signature">Signature</span>}
+            {plat.est_epice && <span className="badge-epice">Épicé</span>}
+            {plat.est_vegetarien && <span className="badge-vegetarien">Végé</span>}
           </div>
-        </div>
-      </Link>
-
-      <div className="p-4">
-        <Link href={`/menu/${plat.slug}`} className="block">
-          <h3 className="font-semibold text-mosaique-nuit text-base leading-snug mb-1 hover:text-mosaique-ocre transition-colors">
+        )}
+        <h3 className="font-body font-extrabold text-base leading-snug">
+          <Link href={`/menu/${plat.slug}`} className="after:absolute after:inset-0 lg:after:hidden hover:text-mosaique-ocre">
             {plat.nom}
-          </h3>
-          <p className="text-sm text-mosaique-gris line-clamp-2 leading-relaxed">
-            {plat.description}
-          </p>
-        </Link>
-
-        <div className="flex items-center justify-between mt-4">
-          <span className="prix text-prix">{formatPrix(plat.prix)}</span>
-          <button
-            onClick={ajouterAuPanier}
-            aria-label={`Ajouter ${plat.nom} au panier`}
-            className="flex items-center gap-1.5 bg-mosaique-ocre text-white text-sm font-medium px-3 py-2 rounded-btn min-h-[40px] hover:bg-mosaique-terre transition-colors active:scale-95"
-          >
-            <Plus size={16} aria-hidden="true" />
-            Ajouter
-          </button>
+          </Link>
+        </h3>
+        <p className="text-[13px] lg:text-sm leading-relaxed text-mosaique-gris line-clamp-2">{plat.description}</p>
+        <div className="mt-auto pt-1 flex items-center justify-between gap-3">
+          <span className="prix text-[15px] lg:text-base">{formatPrix(plat.prix)}</span>
+          <BoutonAjoutRapide plat={plat} className="hidden lg:flex relative z-10" />
         </div>
       </div>
     </article>

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Se connecter' };
 
 export default function PageConnexion() {
   return (
-    <Suspense fallback={<div className="bg-white rounded-card shadow-card p-8 animate-pulse h-96" />}>
+    <Suspense fallback={<div className="carte p-8 animate-pulse h-96" />}>
       <FormulaireConnexion />
     </Suspense>
   );

@@ -1,84 +1,75 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { usePanier } from '@/store/panier';
-import { formatPrix, genererCreneauxLivraison } from '@/lib/utils';
-import type { Profile, ConfigLivraison } from '@/types';
+import { ChevronLeft, Lock } from 'lucide-react';
 import { toast } from 'sonner';
-import Image from 'next/image';
-import { imagePlaceholder } from '@/lib/utils';
+import { usePanier } from '@/store/panier';
+import { cn, formatPrix, genererCreneauxLivraison } from '@/lib/utils';
+import type { Profile, ConfigLivraison } from '@/types';
 
 interface CheckoutClientProps {
-  profile: Profile;
-  configLivraison: ConfigLivraison;
+  profile: Profile | null;
+  configLivraison: ConfigLivraison | null;
 }
 
 const schema = z.object({
-  adresse: z.string().min(5, "L'adresse est requise"),
-  ville: z.string().min(2, 'La ville est requise'),
-  telephone: z.string().min(8, 'Numéro invalide'),
+  telephone: z.string().trim().min(8, 'Numéro de téléphone invalide'),
+  adresse: z.string().trim().min(3, 'Indiquez une adresse ou un point de repère'),
+  ville: z.string().trim().min(2, 'Indiquez la ville'),
   zone_id: z.string().optional(),
   heure_livraison: z.string().optional(),
-  notes: z.string().optional(),
+  notes: z.string().max(500).optional(),
 });
-
 type FormData = z.infer<typeof schema>;
 
 export function CheckoutClient({ profile, configLivraison }: CheckoutClientProps) {
   const router = useRouter();
   const { articles, sousTotal, viderPanier } = usePanier();
-  const [etape, setEtape] = useState<'livraison' | 'recapitulatif'>('livraison');
   const [chargement, setChargement] = useState(false);
-
+  const [programmer, setProgrammer] = useState(false);
   const creneaux = genererCreneauxLivraison(configLivraison?.delai_minutes ?? 45);
+  const parZone = configLivraison?.type === 'par_zone' && (configLivraison.zones?.length ?? 0) > 0;
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    trigger,
-    formState: { errors },
-  } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       adresse: profile?.adresse ?? '',
-      ville: profile?.ville ?? '',
+      ville: profile?.ville ?? 'Abomey-Calavi',
       telephone: profile?.telephone ?? '',
+      zone_id: parZone ? configLivraison!.zones![0].id : undefined,
     },
   });
 
   const zoneId = watch('zone_id');
+  const zone = configLivraison?.zones?.find((z) => z.id === zoneId);
+  const frais = !configLivraison ? 0 : parZone ? zone?.frais ?? 0 : configLivraison.frais_fixe;
+  const total = sousTotal() + frais;
 
-  // Calcul frais livraison
-  function calculerFraisLivraison(): number {
-    if (!configLivraison) return 0;
-    if (configLivraison.type === 'par_zone' && zoneId) {
-      const zone = configLivraison.zones?.find((z) => z.id === zoneId);
-      return zone?.frais ?? configLivraison.frais_fixe;
-    }
-    return configLivraison.frais_fixe;
-  }
-
-  const fraisLivraison = calculerFraisLivraison();
-  const total = sousTotal() + fraisLivraison;
-
-  // Rediriger si panier vide
   if (articles.length === 0) {
     return (
-      <div className="container-site py-20 text-center">
-        <p className="text-mosaique-gris text-lg mb-4">Votre panier est vide.</p>
-        <button onClick={() => router.push('/menu')} className="btn-primary">
-          Voir le menu
-        </button>
+      <div className="container-site py-24 text-center">
+        <p className="font-display text-2xl mb-4">Votre panier est vide</p>
+        <button onClick={() => router.push('/menu')} className="btn-primary">Voir le menu</button>
       </div>
     );
   }
 
-  async function passerCommande(data: FormData) {
+  if (!configLivraison) {
+    return (
+      <div className="container-site py-24 text-center max-w-md">
+        <p className="font-display text-2xl mb-2">Livraison fermée pour le moment</p>
+        <p className="text-mosaique-gris mb-6">Votre panier est conservé. Revenez un peu plus tard.</p>
+        <Link href="/menu" className="btn-secondary">Retour au menu</Link>
+      </div>
+    );
+  }
+
+  async function payer(data: FormData) {
     setChargement(true);
     try {
       const res = await fetch('/api/commandes/creer', {
@@ -88,34 +79,21 @@ export function CheckoutClient({ profile, configLivraison }: CheckoutClientProps
           adresse_livraison: data.adresse,
           ville_livraison: data.ville,
           telephone_livraison: data.telephone,
-          zone_livraison_id: data.zone_id || null,
-          heure_livraison: data.heure_livraison || null,
+          zone_livraison_id: parZone ? data.zone_id : null,
+          heure_livraison: programmer && data.heure_livraison ? data.heure_livraison : null,
           notes: data.notes || null,
-          frais_livraison: fraisLivraison,
-          articles: articles.map((a) => ({
-            platId: a.platId,
-            nom: a.nom,
-            prix: a.prix + a.prixOptions,
-            quantite: a.quantite,
-            options: a.options ?? {},
-          })),
+          // Seuls les identifiants et quantités sont envoyés : les prix sont recalculés par le serveur
+          articles: articles.map((a) => ({ platId: a.platId, quantite: a.quantite, options: a.options ?? {} })),
         }),
       });
-
       const json = await res.json();
-
       if (!res.ok) {
         toast.error(json.error ?? 'Erreur lors de la commande.');
+        if (json.commande_id) router.push('/compte/commandes');
         return;
       }
-
-      // Rediriger vers FedaPay (URL renvoyée par l'API)
-      if (json.fedapay_url) {
-        viderPanier();
-        window.location.href = json.fedapay_url;
-      } else {
-        toast.error('Impossible de lancer le paiement.');
-      }
+      viderPanier();
+      window.location.href = json.fedapay_url;
     } catch {
       toast.error('Erreur réseau. Réessayez.');
     } finally {
@@ -123,208 +101,137 @@ export function CheckoutClient({ profile, configLivraison }: CheckoutClientProps
     }
   }
 
-  return (
-    <div className="container-site py-10">
-      <h1 className="font-display text-3xl font-bold text-mosaique-terre mb-8">
-        Valider la commande
-      </h1>
+  const Erreur = ({ msg }: { msg?: string }) => (msg ? <p className="text-mosaique-epice text-xs font-semibold mt-1">{msg}</p> : null);
 
-      {/* Indicateur d'étape */}
-      <div className="flex items-center gap-3 mb-8 text-sm font-medium">
-        <span className={etape === 'livraison' ? 'text-mosaique-ocre' : 'text-mosaique-gris'}>
-          1. Livraison
-        </span>
-        <span className="text-mosaique-creme">—</span>
-        <span className={etape === 'recapitulatif' ? 'text-mosaique-ocre' : 'text-mosaique-gris'}>
-          2. Récapitulatif & Paiement
-        </span>
+  return (
+    <div className="container-site max-w-5xl pt-5 pb-12 lg:py-10">
+      <div className="flex items-center gap-2 mb-4">
+        <Link href="/menu" aria-label="Retour au menu" className="-ml-2.5 w-11 h-11 flex items-center justify-center rounded-xl hover:bg-mosaique-sable">
+          <ChevronLeft size={22} aria-hidden="true" />
+        </Link>
+        <h1 className="font-display text-[1.6rem] lg:text-4xl font-semibold">Finaliser</h1>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Formulaire / Récap */}
-        <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit(passerCommande)} noValidate>
-            {etape === 'livraison' && (
-              <div className="bg-white rounded-card shadow-card p-6 space-y-5">
-                <h2 className="font-display text-xl font-semibold text-mosaique-terre">
-                  Adresse de livraison
-                </h2>
+      <ol aria-label="Étapes" className="grid grid-cols-3 gap-1.5 mb-7 max-w-md">
+        {['Panier', 'Livraison', 'Paiement'].map((e, i) => (
+          <li key={e} aria-current={i === 1 ? 'step' : undefined} className="flex flex-col gap-1.5">
+            <span className={cn('h-1 rounded-full', i <= 1 ? 'bg-mosaique-nuit' : 'bg-[#E2D8C6]')} />
+            <span className={cn('text-xs font-extrabold', i > 1 && 'text-mosaique-gris font-bold')}>{e}</span>
+          </li>
+        ))}
+      </ol>
 
-                {/* Adresse */}
-                <div>
-                  <label className="label-field" htmlFor="adresse">Adresse</label>
-                  <input id="adresse" type="text" autoComplete="street-address"
-                    className="input-field" {...register('adresse')} />
-                  {errors.adresse && <p className="text-mosaique-epice text-xs mt-1">{errors.adresse.message}</p>}
-                </div>
+      <form onSubmit={handleSubmit(payer)} noValidate className="grid lg:grid-cols-[1fr_380px] gap-7 lg:gap-10 items-start">
+        <div className="flex flex-col gap-7">
+          <section className="flex flex-col gap-3">
+            <h2 className="font-body text-lg font-extrabold">Où livrer ?</h2>
+            <div>
+              <label htmlFor="telephone" className="label-field">Téléphone</label>
+              <input id="telephone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+229 01 00 00 00 00" className="input-field" {...register('telephone')} />
+              <p className="text-xs text-mosaique-gris mt-1">Le livreur vous appellera sur ce numéro.</p>
+              <Erreur msg={errors.telephone?.message} />
+            </div>
+            <div>
+              <label htmlFor="adresse" className="label-field">Adresse ou point de repère</label>
+              <input id="adresse" type="text" autoComplete="street-address" placeholder="Ex. : derrière la pharmacie, portail bleu" className="input-field" {...register('adresse')} />
+              <Erreur msg={errors.adresse?.message} />
+            </div>
+            <div>
+              <label htmlFor="ville" className="label-field">Ville</label>
+              <input id="ville" type="text" autoComplete="address-level2" className="input-field" {...register('ville')} />
+              <Erreur msg={errors.ville?.message} />
+            </div>
+          </section>
 
-                {/* Ville */}
-                <div>
-                  <label className="label-field" htmlFor="ville">Ville</label>
-                  <input id="ville" type="text" autoComplete="address-level2"
-                    className="input-field" {...register('ville')} />
-                  {errors.ville && <p className="text-mosaique-epice text-xs mt-1">{errors.ville.message}</p>}
-                </div>
-
-                {/* Téléphone */}
-                <div>
-                  <label className="label-field" htmlFor="telephone">Téléphone</label>
-                  <input id="telephone" type="tel" autoComplete="tel"
-                    inputMode="tel" className="input-field" {...register('telephone')} />
-                  {errors.telephone && <p className="text-mosaique-epice text-xs mt-1">{errors.telephone.message}</p>}
-                </div>
-
-                {/* Zone de livraison si par zone */}
-                {configLivraison?.type === 'par_zone' && configLivraison.zones && (
-                  <div>
-                    <label className="label-field" htmlFor="zone_id">Zone de livraison</label>
-                    <select id="zone_id" className="input-field" {...register('zone_id')}>
-                      <option value="">Sélectionner une zone</option>
-                      {configLivraison.zones.map((z) => (
-                        <option key={z.id} value={z.id}>
-                          {z.nom} — {formatPrix(z.frais)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Heure de livraison */}
-                <div>
-                  <label className="label-field" htmlFor="heure_livraison">
-                    Heure souhaitée (optionnel)
+          {parZone && (
+            <fieldset className="flex flex-col gap-2.5">
+              <legend className="font-extrabold text-lg mb-2.5">Zone de livraison</legend>
+              {configLivraison.zones!.map((z) => {
+                const actif = z.id === zoneId;
+                return (
+                  <label key={z.id} className={cn('min-h-[60px] flex items-center gap-3 px-3.5 rounded-[14px] bg-white cursor-pointer', actif ? 'border-2 border-mosaique-nuit' : 'border border-[#E2D8C6] m-px')}>
+                    <input type="radio" value={z.id} {...register('zone_id')} className="w-5 h-5 accent-mosaique-nuit" />
+                    <span className="flex-1 text-[15px] font-bold">{z.nom}</span>
+                    <span className="text-sm font-extrabold text-mosaique-ocre">{formatPrix(z.frais)}</span>
                   </label>
-                  <select id="heure_livraison" className="input-field" {...register('heure_livraison')}>
-                    <option value="">Dès que possible</option>
-                    {creneaux.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
+                );
+              })}
+            </fieldset>
+          )}
 
-                {/* Notes */}
-                <div>
-                  <label className="label-field" htmlFor="notes">Instructions pour la livraison</label>
-                  <textarea
-                    id="notes"
-                    rows={3}
-                    placeholder="Code d'entrée, étage, point de repère…"
-                    className="input-field resize-none"
-                    {...register('notes')}
-                  />
-                </div>
-
+          <fieldset className="flex flex-col gap-2.5">
+            <legend className="font-extrabold text-lg mb-2.5">Quand ?</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                ['Dès que possible', false],
+                ['Programmer', true],
+              ].map(([libelle, valeur]) => (
                 <button
+                  key={String(libelle)}
                   type="button"
-                  onClick={async () => {
-                    const valid = await trigger(['adresse', 'ville', 'telephone']);
-                    if (valid) setEtape('recapitulatif');
-                  }}
-                  className="btn-primary w-full"
+                  aria-pressed={programmer === valeur}
+                  onClick={() => { setProgrammer(Boolean(valeur)); if (!valeur) setValue('heure_livraison', undefined); }}
+                  className={cn('min-h-[50px] rounded-[14px] font-bold text-sm border', programmer === valeur ? 'bg-mosaique-nuit text-mosaique-or border-mosaique-nuit' : 'bg-white border-[#E2D8C6]')}
                 >
-                  Continuer vers le paiement
+                  {libelle}
                 </button>
+              ))}
+            </div>
+            {programmer && (
+              <div>
+                <label htmlFor="heure_livraison" className="label-field">Heure souhaitée</label>
+                <select id="heure_livraison" className="input-field" {...register('heure_livraison')}>
+                  {creneaux.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
               </div>
             )}
+            <p className="text-xs text-mosaique-gris">Délai habituel : environ {configLivraison.delai_minutes} min.</p>
+          </fieldset>
 
-            {etape === 'recapitulatif' && (
-              <div className="bg-white rounded-card shadow-card p-6 space-y-6">
-                <h2 className="font-display text-xl font-semibold text-mosaique-terre">
-                  Récapitulatif de la commande
-                </h2>
+          <div>
+            <label htmlFor="notes" className="label-field">Note pour le livreur ou la cuisine <span className="font-semibold text-mosaique-gris">(facultatif)</span></label>
+            <textarea id="notes" rows={3} placeholder="Ex. : peu pimenté, appeler en arrivant…" className="input-field resize-none" {...register('notes')} />
+          </div>
 
-                {/* Articles */}
-                <ul className="divide-y divide-mosaique-creme">
-                  {articles.map((a) => (
-                    <li key={`${a.platId}-${JSON.stringify(a.options ?? {})}`}
-                      className="flex gap-3 py-3">
-                      <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-mosaique-creme">
-                        <Image
-                          src={a.image_url || imagePlaceholder(a.nom)}
-                          alt={a.nom} fill className="object-cover" sizes="56px"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-mosaique-nuit">{a.nom}</p>
-                        <p className="text-xs text-mosaique-gris">Qté : {a.quantite}</p>
-                      </div>
-                      <span className="prix text-sm tabular-nums">
-                        {formatPrix((a.prix + a.prixOptions) * a.quantite)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Totaux */}
-                <div className="space-y-2 pt-2 border-t border-mosaique-creme text-sm">
-                  <div className="flex justify-between text-mosaique-gris">
-                    <span>Sous-total</span>
-                    <span className="tabular-nums">{formatPrix(sousTotal())}</span>
-                  </div>
-                  <div className="flex justify-between text-mosaique-gris">
-                    <span>Frais de livraison</span>
-                    <span className="tabular-nums">{formatPrix(fraisLivraison)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-mosaique-nuit text-base pt-2 border-t border-mosaique-creme">
-                    <span>Total</span>
-                    <span className="prix text-prix-lg">{formatPrix(total)}</span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-mosaique-gris">
-                  Aucun frais supplémentaire ne sera ajouté. Le paiement est sécurisé via FedaPay.
-                </p>
-
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setEtape('livraison')}
-                    className="btn-secondary flex-1"
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={chargement}
-                    className="btn-primary flex-1"
-                  >
-                    {chargement ? 'Redirection…' : 'Payer maintenant'}
-                  </button>
-                </div>
+          <section className="flex flex-col gap-2.5">
+            <h2 className="font-body text-lg font-extrabold">Paiement</h2>
+            <div className="carte p-3.5 flex flex-col gap-2.5">
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[13px] font-extrabold px-3 py-1.5 rounded-[10px] bg-[#FFF4C2] text-[#4A3B00]">MTN MoMo</span>
+                <span className="text-[13px] font-extrabold px-3 py-1.5 rounded-[10px] bg-[#DCEBFF] text-[#0B3A75]">Moov Money</span>
+                <span className="text-[13px] font-extrabold px-3 py-1.5 rounded-[10px] bg-mosaique-sable">Carte bancaire</span>
               </div>
-            )}
-          </form>
+              <p className="text-[13px] leading-relaxed text-mosaique-gris">Vous choisirez votre moyen de paiement sur la page sécurisée FedaPay. Aucun frais supplémentaire.</p>
+            </div>
+          </section>
         </div>
 
-        {/* Résumé panier latéral */}
-        <aside className="hidden lg:block">
-          <div className="bg-white rounded-card shadow-card p-5 sticky top-28">
-            <h3 className="font-semibold text-mosaique-nuit mb-4">Votre panier</h3>
-            <ul className="space-y-3 mb-4">
-              {articles.map((a) => (
-                <li key={a.platId} className="flex justify-between text-sm">
-                  <span className="text-mosaique-nuit">
-                    {a.quantite}× {a.nom}
-                  </span>
-                  <span className="tabular-nums text-mosaique-gris">
-                    {formatPrix((a.prix + a.prixOptions) * a.quantite)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="pt-3 border-t border-mosaique-creme">
-              <div className="flex justify-between text-sm text-mosaique-gris mb-1">
-                <span>Livraison</span>
-                <span className="tabular-nums">{formatPrix(fraisLivraison)}</span>
+        <aside className="lg:sticky lg:top-28 flex flex-col gap-4">
+          <section className="bg-mosaique-nuit rounded-[20px] p-[18px] flex flex-col gap-2.5 text-mosaique-ivoire">
+            <h2 className="font-display text-xl font-semibold mb-1">Récapitulatif</h2>
+            {articles.map((a) => (
+              <div key={`${a.platId}-${JSON.stringify(a.options ?? {})}`} className="flex justify-between gap-3 text-sm text-[#C9BFAF]">
+                <span>{a.nom} × {a.quantite}</span>
+                <span className="tabular-nums shrink-0">{formatPrix((a.prix + a.prixOptions) * a.quantite)}</span>
               </div>
-              <div className="flex justify-between font-bold text-mosaique-nuit">
-                <span>Total</span>
-                <span className="prix">{formatPrix(total)}</span>
-              </div>
+            ))}
+            <div className="flex justify-between gap-3 text-sm text-[#C9BFAF]">
+              <span>Livraison{zone ? ` · ${zone.nom}` : ''}</span>
+              <span className="tabular-nums shrink-0">{formatPrix(frais)}</span>
             </div>
-          </div>
+            <div className="h-px bg-mosaique-trait my-1" />
+            <div className="flex justify-between items-baseline">
+              <span className="font-extrabold">Total</span>
+              <span className="text-[1.4rem] font-extrabold text-mosaique-or tabular-nums">{formatPrix(total)}</span>
+            </div>
+          </section>
+          <button type="submit" disabled={chargement} className="btn-or text-base min-h-[58px] rounded-2xl">
+            <Lock size={18} aria-hidden="true" />
+            {chargement ? 'Redirection vers FedaPay…' : `Payer ${formatPrix(total)}`}
+          </button>
+          <p className="-mt-2 text-center text-xs text-mosaique-gris">Paiement sécurisé par FedaPay · le montant final est vérifié par nos serveurs</p>
         </aside>
-      </div>
+      </form>
     </div>
   );
 }
