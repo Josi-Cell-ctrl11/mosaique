@@ -149,8 +149,8 @@ export function PlatsAdminClient({ plats: initial, categories }: Props) {
       </div>
 
       {/* Table */}
-      <div className="carte overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="carte overflow-x-auto">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="bg-mosaique-ivoire border-b border-mosaique-creme text-xs text-mosaique-gris uppercase">
               <th className="text-left px-4 py-3">Photo</th>

@@ -34,8 +34,8 @@ export function Hero({ image, nomPlat, prixDes }: Props) {
           <dl className="grid grid-cols-3 gap-2 lg:gap-8 lg:flex pt-2 lg:pt-4 lg:border-t lg:border-mosaique-brun">
             {[
               ['Paiement', 'MoMo · Moov · Carte'],
-              ['Livraison', 'Abomey-Calavi & environs'],
-              ['Commande', 'En ligne ou WhatsApp'],
+              ['Livraison', 'Calavi & environs'],
+              ['Commande', 'En ligne · WhatsApp'],
             ].map(([titre, valeur]) => (
               <div key={titre} className="border border-mosaique-trait lg:border-0 rounded-xl p-2.5 lg:p-0 lg:pt-4">
                 <dt className="text-[11px] lg:text-[13px] text-[#A89C8B]">{titre}</dt>
