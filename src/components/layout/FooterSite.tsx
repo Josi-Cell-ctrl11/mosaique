@@ -1,28 +1,26 @@
 import Link from 'next/link';
 
+const LIENS = [
+  { href: '/menu', label: 'Le menu' },
+  { href: '/#histoire', label: 'Notre histoire' },
+  { href: '/compte', label: 'Mon compte' },
+  { href: '/connexion', label: 'Se connecter' },
+];
+
 export function FooterSite() {
   return (
-    <footer className="bg-mosaique-terre text-white/70 py-12">
+    <footer className="bg-mosaique-terre text-white/70 py-8">
       <div className="container-site">
-        <div className="grid sm:grid-cols-3 gap-8 mb-10">
-          {/* Marque */}
+        {/* Une seule ligne : marque · navigation · contact */}
+        <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-5 pb-6">
           <div>
-            <p className="font-display text-2xl font-bold text-white mb-3">Mosaïque</p>
-            <p className="text-sm leading-relaxed">
-              Une cuisine faite à la main, livrée avec soin. Chaque jour.
-            </p>
+            <p className="font-display text-2xl font-bold text-white">Mosaïque</p>
+            <p className="text-xs mt-0.5">Une cuisine faite à la main, livrée avec soin.</p>
           </div>
 
-          {/* Navigation */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Navigation</p>
-            <ul className="space-y-2 text-sm">
-              {[
-                { href: '/menu', label: 'Le menu' },
-                { href: '/#histoire', label: 'Notre histoire' },
-                { href: '/compte', label: 'Mon compte' },
-                { href: '/connexion', label: 'Se connecter' },
-              ].map((l) => (
+          <nav aria-label="Pied de page">
+            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              {LIENS.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="hover:text-white transition-colors">
                     {l.label}
@@ -30,19 +28,15 @@ export function FooterSite() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Contact */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Contact</p>
-            <ul className="space-y-2 text-sm">
-              <li>Du lundi au samedi, 10h–22h</li>
-              <li>contact@mosaique.com</li>
-            </ul>
-          </div>
+          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            <li>Du lundi au samedi, 10h–22h</li>
+            <li>contact@mosaique.com</li>
+          </ul>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-white/40">
+        <div className="border-t border-white/10 pt-5 flex flex-wrap justify-between items-center gap-x-6 gap-y-2 text-xs text-white/40">
           <p>© {new Date().getFullYear()} Mosaïque. Tous droits réservés.</p>
           <p>Paiement sécurisé via FedaPay</p>
         </div>
