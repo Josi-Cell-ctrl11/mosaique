@@ -55,8 +55,8 @@ export function CategoriesAdminClient({ categories: initial }: Props) {
       <div className="flex justify-end">
         <button onClick={() => ouvrir()} className="btn-primary"><Plus size={16} /> Ajouter une catégorie</button>
       </div>
-      <div className="carte overflow-x-auto">
-        <table className="w-full text-sm min-w-[640px]">
+      <div className="bg-white rounded-card shadow-card overflow-hidden">
+        <table className="w-full text-sm">
           <thead><tr className="bg-mosaique-ivoire border-b border-mosaique-creme text-xs text-mosaique-gris uppercase">
             <th className="text-left px-4 py-3">Nom</th><th className="text-left px-4 py-3">Slug</th><th className="text-center px-4 py-3">Ordre</th><th className="text-right px-4 py-3">Actions</th>
           </tr></thead>

@@ -9,41 +9,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palette « Noir & Or » — reprise de l'identité Le Mosaïque (affiches noires, lettres dorées)
+        // Palette Mosaïque — tirée de la chaleur des plats cuisinés :
+        // ocre chaud, terre de Sienne, blanc cassé ivoire, accent épice
         mosaique: {
-          nuit:    '#14110E', // noir chaud : en-têtes, boutons sombres
-          brun:    '#221C16', // surfaces sombres secondaires
-          trait:   '#3A3128', // bordures sur fond sombre
-          or:      '#D4AF5A', // or : accent sur fond sombre, boutons dorés (texte noir)
-          'or-pale': '#F1DFA8',
-          ocre:    '#8A6A1F', // or foncé : texte doré lisible sur fond clair (et texte blanc dessus)
-          'ocre-fonce': '#5E4712',
-          terre:   '#1C1712', // titres sur fond clair
-          ivoire:  '#FAF7F1', // fond général
-          creme:   '#ECE4D6', // bordures, séparateurs
-          sable:   '#F4EEE3', // fonds secondaires
-          dore:    '#F1E6CC', // pastilles dorées pâles
-          gris:    '#6B6056', // texte secondaire (contraste AA sur ivoire)
-          epice:   '#B4441E', // badge épicé / erreurs
-          vert:    '#3D6B4A', // badge végétarien / succès
+          ocre:    '#C8792A', // accent principal, prix, CTA
+          terre:   '#7A3B1E', // texte foncé, titres
+          ivoire:  '#FAF6EF', // fond général
+          creme:   '#F0E8D8', // fonds de carte, sections alternées
+          epice:   '#E8481C', // badge "épicé", erreurs
+          vert:    '#4A7C59', // badge "végétarien"
+          gris:    '#9E9084', // texte secondaire, placeholders
+          nuit:    '#1C1410', // texte principal sur fond clair
+          or:      '#C8A94A', // doré — logo, accents placeholder
         },
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
-        body: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        body:    ['var(--font-body)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        prix: ['1.0625rem', { lineHeight: '1', fontWeight: '800' }],
-        'prix-lg': ['1.375rem', { lineHeight: '1', fontWeight: '800' }],
+        'prix':   ['1.25rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.01em' }],
+        'prix-lg':['1.5rem',  { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }],
       },
       borderRadius: {
-        card: '1.125rem',
-        btn: '0.875rem',
+        'card': '0.75rem',
+        'btn':  '0.5rem',
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgba(20,17,14,0.05)',
-        'card-hover': '0 10px 30px -8px rgba(20,17,14,0.18)',
-        flottant: '0 10px 30px rgba(20,17,14,0.28)',
+        'card':  '0 2px 12px 0 rgba(28,20,16,0.08)',
+        'card-hover': '0 6px 24px 0 rgba(28,20,16,0.14)',
       },
     },
   },

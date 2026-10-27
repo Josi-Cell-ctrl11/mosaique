@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Réinitialiser le mot de passe' };
 
 export default function PageReinitialiserMotDePasse() {
   return (
-    <Suspense fallback={<div className="carte p-8 animate-pulse h-64" />}>
+    <Suspense fallback={<div className="bg-white rounded-card shadow-card p-8 animate-pulse h-64" />}>
       <FormulaireReinitialiserMotDePasse />
     </Suspense>
   );

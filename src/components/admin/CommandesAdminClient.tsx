@@ -1,7 +1,5 @@
 'use client';
 
-import { COULEUR_STATUT } from '@/lib/statuts';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Commande, StatutCommande } from '@/types';
@@ -21,7 +19,14 @@ const STATUTS_SUIVANTS: Record<StatutCommande, StatutCommande | null> = {
   annulee:             null,
 };
 
-const STATUT_COULEURS: Record<string, string> = COULEUR_STATUT;
+const STATUT_COULEURS: Record<string, string> = {
+  en_attente_paiement: 'bg-yellow-100 text-yellow-800',
+  payee:              'bg-blue-100 text-blue-800',
+  en_preparation:     'bg-orange-100 text-orange-800',
+  en_livraison:       'bg-indigo-100 text-indigo-800',
+  livree:             'bg-green-100 text-green-800',
+  annulee:            'bg-red-100 text-red-800',
+};
 
 type FiltreStatut = 'tous' | StatutCommande;
 
@@ -69,7 +74,7 @@ export function CommandesAdminClient({ commandes: initial }: Props) {
             onClick={() => setFiltre(s)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[36px] ${
               filtre === s
-                ? 'bg-mosaique-nuit text-mosaique-or'
+                ? 'bg-mosaique-ocre text-white'
                 : 'bg-white text-mosaique-gris hover:text-mosaique-nuit border border-mosaique-creme'
             }`}
           >
@@ -89,7 +94,7 @@ export function CommandesAdminClient({ commandes: initial }: Props) {
             const enChargement = chargement === commande.id;
 
             return (
-              <div key={commande.id} className="carte p-5">
+              <div key={commande.id} className="bg-white rounded-card shadow-card p-5">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <div className="flex items-center gap-3 mb-1">

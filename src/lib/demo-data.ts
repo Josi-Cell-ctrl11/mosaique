@@ -476,24 +476,3 @@ export const PLATS_DEMO: Plat[] = [
   { id: 'd-k06', categorie_id: 'cat-14', nom: 'Sauce crin-crin enrichie — tripes de mouton', slug: 'crin-crin-tripes-mouton', description: 'Sauce crin-crin enrichie aux tripes de mouton.', prix: 5000, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 6, images_urls: [], created_at: d, updated_at: d },
   { id: 'd-k07', categorie_id: 'cat-14', nom: 'Sauce crin-crin — tripes de bœuf', slug: 'crin-crin-tripes-boeuf', description: 'Sauce crin-crin aux tripes de bœuf.', prix: 4500, disponible: true, est_vegetarien: false, est_epice: false, est_vedette: false, ordre: 7, images_urls: [], created_at: d, updated_at: d },
 ];
-
-// Photos des plats (mêmes fichiers que la vraie base, servis depuis public/assets/plats)
-const PHOTO_PAR_CATEGORIE: Record<string, string> = {
-  'cat-1': '/assets/plats/sandwich.jpg',
-  'cat-2': '/assets/plats/pate.jpg',
-  'cat-3': '/assets/plats/kebab.jpg',
-  'cat-4': '/assets/plats/chawarma.jpg',
-  'cat-5': '/assets/plats/poulets.jpg',
-  'cat-6': '/assets/plats/brochettes.jpg',
-  'cat-7': '/assets/plats/poisson.jpg',
-  'cat-8': '/assets/plats/gaufres.jpg',
-  'cat-9': '/assets/plats/crepes.jpg',
-  'cat-10': '/assets/plats/sauce-assrokouin.jpg',
-  'cat-11': '/assets/plats/sauce-gombo.jpg',
-  'cat-12': '/assets/plats/sauce-arachide.jpg',
-  'cat-13': '/assets/plats/michoui.jpg',
-  'cat-14': '/assets/plats/sauce-crin-crin.jpg',
-};
-PLATS_DEMO.forEach((p) => {
-  if (!p.image_url) p.image_url = PHOTO_PAR_CATEGORIE[p.categorie_id];
-});

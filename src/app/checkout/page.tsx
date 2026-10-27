@@ -18,16 +18,14 @@ export default async function PageCheckout() {
       .from('config_livraison')
       .select('*, zones:zones_livraison(*)')
       .eq('actif', true)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle(),
+      .single(),
   ]);
 
   return (
-    <div className="pt-16 lg:pt-20 min-h-screen">
+    <div className="pt-16 lg:pt-20 min-h-screen bg-mosaique-ivoire">
       <CheckoutClient
-        profile={(profile as Profile | null) ?? null}
-        configLivraison={(config as ConfigLivraison | null) ?? null}
+        profile={profile as Profile}
+        configLivraison={config as ConfigLivraison}
       />
     </div>
   );

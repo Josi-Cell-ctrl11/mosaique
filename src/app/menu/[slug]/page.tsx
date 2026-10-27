@@ -37,25 +37,6 @@ async function getPlat(slug: string): Promise<Plat | null> {
   }
 }
 
-async function getFamille(plat: Plat): Promise<Plat[]> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url || url === 'your_supabase_project_url') {
-    return PLATS_DEMO.filter((p) => p.categorie_id === plat.categorie_id);
-  }
-  try {
-    const { createClient } = await import('@/lib/supabase/server');
-    const { data } = await createClient()
-      .from('plats')
-      .select('*')
-      .eq('categorie_id', plat.categorie_id)
-      .eq('disponible', true)
-      .order('ordre');
-    return (data ?? []) as Plat[];
-  } catch {
-    return [];
-  }
-}
-
 async function getSuggestion(plat: Plat): Promise<Plat | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!url || url === 'your_supabase_project_url') {
@@ -81,30 +62,15 @@ async function getSuggestion(plat: Plat): Promise<Plat | null> {
   }
 }
 
-async function getSuggestionAutreFamille(plat: Plat): Promise<Plat | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url || url === 'your_supabase_project_url') return getSuggestion(plat);
-  try {
-    const { createClient } = await import('@/lib/supabase/server');
-    const { data } = await createClient()
-      .from('plats')
-      .select('*, categorie:categories(*)')
-      .eq('disponible', true)
-      .eq('est_vedette', true)
-      .neq('categorie_id', plat.categorie_id)
-      .limit(6);
-    const liste = (data ?? []) as Plat[];
-    return liste.length ? liste[plat.nom.length % liste.length] : null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function PageFichePlat({ params }: Props) {
   const plat = await getPlat(params.slug);
   if (!plat) notFound();
 
-  const [famille, suggestion] = await Promise.all([getFamille(plat!), getSuggestionAutreFamille(plat!)]);
+  const suggestion = await getSuggestion(plat!);
 
-  return <FichePlatClient plat={plat!} famille={famille} suggestion={suggestion} />;
+  return (
+    <div className="pt-16 lg:pt-20">
+      <FichePlatClient plat={plat!} suggestion={suggestion} />
+    </div>
+  );
 }
