@@ -50,9 +50,10 @@ export function ProfilClient({ profile }: Props) {
 
   return (
     <div>
-      <h1 className="sr-only">Mon profil</h1>
-      <div className="carte p-5">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <h1 className="font-display text-2xl font-bold text-mosaique-terre mb-6">Mon profil</h1>
+
+      <div className="bg-white rounded-card shadow-card p-6">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 max-w-md">
           <div>
             <label className="label-field" htmlFor="nom">Nom complet</label>
             <input id="nom" type="text" className="input-field" {...register('nom')} />
@@ -84,7 +85,7 @@ export function ProfilClient({ profile }: Props) {
           <button
             type="submit"
             disabled={!isDirty || sauvegarde}
-            className="btn-primary w-full"
+            className="btn-primary"
           >
             {sauvegarde ? 'Sauvegarde…' : 'Enregistrer les modifications'}
           </button>

@@ -1,32 +1,52 @@
 import Link from 'next/link';
-import { Logo } from '@/components/ui/Logo';
 
 export function FooterSite() {
   return (
-    <footer id="contact" className="bg-mosaique-nuit text-[#C9BFAF]">
-      <div className="container-site py-10 lg:py-14 flex flex-wrap gap-8 lg:gap-12 justify-between">
-        <div className="flex flex-col gap-3 max-w-sm">
-          <Logo />
-          <p className="font-display italic text-[15px] lg:text-[17px]">L’élégance du goût et un voyage culinaire pour tous.</p>
+    <footer className="bg-mosaique-terre text-white/70 py-12">
+      <div className="container-site">
+        <div className="grid sm:grid-cols-3 gap-8 mb-10">
+          {/* Marque */}
+          <div>
+            <p className="font-display text-2xl font-bold text-white mb-3">Mosaïque</p>
+            <p className="text-sm leading-relaxed">
+              Une cuisine faite à la main, livrée avec soin. Chaque jour.
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Navigation</p>
+            <ul className="space-y-2 text-sm">
+              {[
+                { href: '/menu', label: 'Le menu' },
+                { href: '/#histoire', label: 'Notre histoire' },
+                { href: '/compte', label: 'Mon compte' },
+                { href: '/connexion', label: 'Se connecter' },
+              ].map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-white transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Contact</p>
+            <ul className="space-y-2 text-sm">
+              <li>Du lundi au samedi, 10h–22h</li>
+              <li>contact@mosaique.com</li>
+            </ul>
+          </div>
         </div>
-        <div className="flex flex-col gap-1.5 text-[15px]">
-          <span className="font-extrabold text-mosaique-ivoire">Nous trouver</span>
-          <span>Abomey-Calavi, Bénin</span>
-          <span>Livraison possible</span>
-          {process.env.NEXT_PUBLIC_WHATSAPP && (
-            <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP.replace(/\D/g, '')}`} className="text-mosaique-or hover:underline">
-              WhatsApp : {process.env.NEXT_PUBLIC_WHATSAPP}
-            </a>
-          )}
-        </div>
-        <div className="flex flex-col gap-1.5 text-[15px]">
-          <span className="font-extrabold text-mosaique-ivoire">Liens</span>
-          <Link href="/menu" className="hover:text-mosaique-or">Menu</Link>
-          <Link href="/compte/commandes" className="hover:text-mosaique-or">Mes commandes</Link>
-          <Link href="/compte" className="hover:text-mosaique-or">Mon compte</Link>
+
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-white/40">
+          <p>© {new Date().getFullYear()} Mosaïque. Tous droits réservés.</p>
+          <p>Paiement sécurisé via FedaPay</p>
         </div>
       </div>
-      <div className="container-site pb-6 text-xs text-[#8C8073]">© {new Date().getFullYear()} Le Mosaïque</div>
     </footer>
   );
 }

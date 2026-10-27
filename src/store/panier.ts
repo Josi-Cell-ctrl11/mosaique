@@ -8,7 +8,7 @@ interface EtatPanier {
   ouvert: boolean;
 
   // Actions
-  ajouterArticle: (article: ArticlePanier, ouvrir?: boolean) => void;
+  ajouterArticle: (article: ArticlePanier) => void;
   retirerArticle: (platId: string, options?: Record<string, string>) => void;
   modifierQuantite: (platId: string, quantite: number, options?: Record<string, string>) => void;
   viderPanier: () => void;
@@ -32,7 +32,7 @@ export const usePanier = create<EtatPanier>()(
       articles: [],
       ouvert: false,
 
-      ajouterArticle: (nouvelArticle, ouvrir = true) => {
+      ajouterArticle: (nouvelArticle) => {
         set((state) => {
           const existant = state.articles.findIndex(
             (a) =>
@@ -46,10 +46,10 @@ export const usePanier = create<EtatPanier>()(
               ...articles[existant],
               quantite: articles[existant].quantite + nouvelArticle.quantite,
             };
-            return { articles, ouvert: ouvrir || state.ouvert };
+            return { articles, ouvert: true };
           }
 
-          return { articles: [...state.articles, nouvelArticle], ouvert: ouvrir || state.ouvert };
+          return { articles: [...state.articles, nouvelArticle], ouvert: true };
         });
       },
 
@@ -86,8 +86,6 @@ export const usePanier = create<EtatPanier>()(
     {
       name: 'mosaique-panier',
       storage: createJSONStorage(() => localStorage),
-      // On ne persiste que le contenu, pas l'état ouvert/fermé du tiroir
-      partialize: (state) => ({ articles: state.articles }),
     }
   )
 );

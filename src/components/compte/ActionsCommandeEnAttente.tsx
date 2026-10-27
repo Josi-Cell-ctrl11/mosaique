@@ -56,19 +56,19 @@ export function ActionsCommandeEnAttente({ commandeId, fedapayTransactionId }: P
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 mt-3">
+    <div className="flex gap-2 mt-3 flex-wrap">
       <button
         onClick={continuerPaiement}
-        className="btn-primary text-sm min-h-[44px] px-3"
+        className="flex-1 sm:flex-none btn-primary text-sm py-2 px-4"
       >
-        Payer
+        Continuer le paiement
       </button>
       <button
         onClick={annulerCommande}
         disabled={annulation}
-        className="btn-secondary text-sm min-h-[44px] px-3 text-[#8A2E14]"
+        className="flex-1 sm:flex-none btn-secondary text-sm py-2 px-4 border-mosaique-epice text-mosaique-epice hover:bg-red-50"
       >
-        {annulation ? 'Annulation…' : 'Annuler'}
+        {annulation ? 'Annulation…' : 'Annuler la commande'}
       </button>
     </div>
   );

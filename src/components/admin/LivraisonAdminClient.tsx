@@ -63,7 +63,7 @@ export function LivraisonAdminClient({ config: initialConfig }: Props) {
   return (
     <div className="max-w-2xl space-y-8">
       {/* Config principale */}
-      <div className="carte p-6 space-y-5">
+      <div className="bg-white rounded-card shadow-card p-6 space-y-5">
         <h2 className="font-semibold text-mosaique-nuit">Paramètres généraux</h2>
 
         {/* Type */}
@@ -115,7 +115,7 @@ export function LivraisonAdminClient({ config: initialConfig }: Props) {
 
       {/* Zones (si par zone) */}
       {config.type === 'par_zone' && (
-        <div className="carte p-6 space-y-4">
+        <div className="bg-white rounded-card shadow-card p-6 space-y-4">
           <h2 className="font-semibold text-mosaique-nuit">Zones de livraison</h2>
 
           {/* Zones existantes */}
